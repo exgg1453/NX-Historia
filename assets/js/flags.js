@@ -91,12 +91,22 @@ function castle(cx, cy, scale, fill) {
   return `<g transform="translate(${cx} ${cy}) scale(${scale})" fill="${fill}"><rect x="-6" y="-2" width="12" height="8"/><rect x="-6" y="-6" width="3" height="4"/><rect x="-1.5" y="-7" width="3" height="5"/><rect x="3" y="-6" width="3" height="4"/></g>`;
 }
 
+function shield(cx, cy, width, height, fill, stroke) {
+  const half = width / 2;
+  return `<path d="M${cx - half} ${cy - height / 2} L${cx + half} ${cy - height / 2} L${cx + half} ${cy + height / 6} Q${cx + half} ${cy + height / 2} ${cx} ${cy + height / 2} Q${cx - half} ${cy + height / 2} ${cx - half} ${cy + height / 6} Z" fill="${fill}"${stroke ? ` stroke="${stroke}" stroke-width="0.5"` : ""}/>`;
+}
+
+function crown(cx, cy, width, fill) {
+  const half = width / 2;
+  return `<path d="M${cx - half} ${cy} L${cx - half} ${cy - 2} L${cx - half / 2} ${cy - 0.6} L${cx} ${cy - 3} L${cx + half / 2} ${cy - 0.6} L${cx + half} ${cy - 2} L${cx + half} ${cy} Z" fill="${fill}"/>`;
+}
+
 function eagle(cx, cy, scale, fill) {
   return `<g transform="translate(${cx} ${cy}) scale(${scale})" fill="${fill}"><circle cx="0" cy="-5.4" r="1.7"/><path d="M1.4 -4.6 L2.6 -6 L4 -4.8 Z"/><path d="M0 -3.6 L9.5 -5 L4.4 0.6 L0 1.8 Z"/><path d="M0 -3.6 L-9.5 -5 L-4.4 0.6 L0 1.8 Z"/><path d="M-2.4 1.4 L2.4 1.4 L0 6.4 Z"/></g>`;
 }
 
-function sickle(cx, cy, scale, fill, cover) {
-  return `<g transform="translate(${cx} ${cy}) scale(${scale})" fill="${fill}"><g transform="rotate(-140)"><circle cx="0" cy="0" r="8"/><circle cx="3.4" cy="0" r="6.4" fill="${cover}"/></g><rect x="-7.5" y="4" width="5" height="2" transform="rotate(40 -5 5)"/><rect x="-6.4" y="-1.1" width="12.6" height="2.2" transform="rotate(-45 0 0)"/><rect x="2.6" y="-6.8" width="4.6" height="4.2" transform="rotate(-45 4.9 -4.7)"/></g>`;
+function hammerAndSickle(cx, cy, scale, fill) {
+  return `<g transform="translate(${cx} ${cy}) scale(${scale})" fill="${fill}"><path d="M-8.6 4.6 A9 9 0 0 1 4.4 -7.4 L5.6 -5.2 A6.4 6.4 0 0 0 -6.2 3.4 Z"/><path d="M-9.6 3.2 L-6 5.2 L-7.6 8 L-11.2 6 Z"/><path d="M-6.4 7.2 L-4.4 4.8 L6 -3.8 L8 -1.4 Z"/><path d="M4.2 -6.6 L9.6 -2.2 L7.4 0.6 L2 -3.8 Z"/></g>`;
 }
 
 function trigram(x, y, angle) {
@@ -109,6 +119,7 @@ function taegeuk() {
 
 const FLAGS = {
   tr: () => field("#E30A17") + crescent(23, 20, 9, "#FFFFFF", "#E30A17", 3) + star(35, 20, 4.4, "#FFFFFF", 5, -18),
+  "ottoman-early": () => field("#B01B1B") + crescent(30, 20, 11, "#FFFFFF", "#B01B1B", 3.8),
   ottoman: () => field("#C8102E") + crescent(24, 20, 9.5, "#FFFFFF", "#C8102E", 3.2) + star(37, 20, 4.2, "#FFFFFF", 5, -18),
   "de-imperial": () => hbands(["#101010", "#FFFFFF", "#C8102E"]),
   de: () => hbands(["#101010", "#DD0000", "#FFCE00"]),
@@ -120,7 +131,7 @@ const FLAGS = {
   fr: () => vbands(["#0055A4", "#FFFFFF", "#EF4135"]),
   "fr-royal": () =>
     field("#2B4B9B") + fleur(20, 12, 1, "#F2C230") + fleur(40, 12, 1, "#F2C230") + fleur(30, 28, 1, "#F2C230"),
-  ussr: () => field("#CC0000") + star(11, 8.5, 4.4, "#F5C518") + sickle(31, 21, 1.9, "#F5C518", "#CC0000"),
+  ussr: () => field("#CC0000") + star(15, 7, 4.2, "#F5C518") + hammerAndSickle(15, 20, 1.0, "#F5C518"),
   ru: () => hbands(["#FFFFFF", "#0039A6", "#D52B1E"]),
   muscovy: () =>
     field("#A82231") +
@@ -150,7 +161,16 @@ const FLAGS = {
     castle(45, 30, 0.9, "#E3B23C") +
     lion(44, 10, 0.72, "#7B3F8C") +
     lion(14, 30, 0.72, "#7B3F8C"),
-  es: () => rect(0, 0, WIDTH, 10, "#AA151B") + rect(0, 10, WIDTH, 20, "#F1BF00") + rect(0, 30, WIDTH, 10, "#AA151B"),
+  es: () =>
+    rect(0, 0, WIDTH, 10, "#AA151B") +
+    rect(0, 10, WIDTH, 20, "#F1BF00") +
+    rect(0, 30, WIDTH, 10, "#AA151B") +
+    rect(14.6, 12.6, 2, 14.8, "#AA151B") +
+    rect(25.4, 12.6, 2, 14.8, "#AA151B") +
+    shield(21, 20.4, 9, 12.4, "#F1BF00", "#5B3A1E") +
+    rect(16.5, 14.2, 4.5, 6.2, "#AA151B") +
+    rect(21, 20.4, 4.5, 5.6, "#AA151B") +
+    crown(21, 14.2, 6, "#C8A02E"),
   us: () => {
     let output = stripes(13, ["#B22234", "#FFFFFF"]);
     output += rect(0, 0, 24, 21.5, "#3C3B6E");
@@ -207,7 +227,8 @@ const FLAGS = {
     `<path d="M30 28 L24 17.5 L36 17.5 Z" fill="none" stroke="#0038B8" stroke-width="1.5"/>`,
   sa: () =>
     field("#006C35") +
-    `<g fill="#FFFFFF"><path d="M18 25.6 L44 24.8 L50 26.6 L44 28.4 L18 27.6 Z"/><rect x="14.6" y="22.8" width="2.6" height="7.6"/><rect x="10" y="25.2" width="5" height="2.8" rx="1.2"/></g>`,
+    `<text x="30" y="19.6" fill="#FFFFFF" font-size="7" text-anchor="middle" textLength="42" lengthAdjust="spacingAndGlyphs" font-family="'Noto Naskh Arabic','Amiri','Scheherazade New','Segoe UI','Arial',serif" direction="rtl">لا إله إلا الله محمد رسول الله</text>` +
+    `<g fill="#FFFFFF"><path d="M18 27 L42 26.2 L48 28 L42 29.8 L18 28.6 Z"/><rect x="14.6" y="24.4" width="2.4" height="6.8"/><rect x="10.4" y="26.6" width="4.6" height="2.6" rx="1.1"/></g>`,
   br: () =>
     field("#009C3B") +
     poly("30,4 56,20 30,36 4,20", "#FFDF00") +
@@ -220,8 +241,7 @@ const FLAGS = {
   pk: () =>
     field("#01411C") +
     rect(0, 0, 15, HEIGHT, "#FFFFFF") +
-    crescent(35, 20, 8.6, "#FFFFFF", "#01411C", 3) +
-    star(45, 12, 3.2, "#FFFFFF"),
+    `<g transform="rotate(-40 37 20)">${crescent(37, 20, 8.4, "#FFFFFF", "#01411C", 3.1)}${star(45.6, 20, 3.4, "#FFFFFF", 5, -18)}</g>`,
   ua: () => hbands(["#0057B7", "#FFD700"]),
   gr: () =>
     stripes(9, ["#0D5EAF", "#FFFFFF"]) +
@@ -236,7 +256,17 @@ const FLAGS = {
     rect(0, 13.3, WIDTH, 6.7, "#ED2939") +
     rect(0, 20, WIDTH, 6.7, "#CE2939") +
     rect(0, 26.7, WIDTH, 6.6, "#FFFFFF") +
-    rect(0, 33.3, WIDTH, 6.7, "#477050"),
+    rect(0, 33.3, WIDTH, 6.7, "#477050") +
+    shield(19, 20, 9, 12, "#ED2939", "#2A2A2A") +
+    rect(14.5, 18, 9, 4, "#FFFFFF") +
+    crown(19, 14.4, 6, "#E3C05B") +
+    shield(31, 20, 9, 12, "#ED2939", "#2A2A2A") +
+    rect(26.5, 14.6, 9, 1.7, "#FFFFFF") +
+    rect(26.5, 18, 9, 1.7, "#FFFFFF") +
+    `<path d="M26.5 25.4 Q31 21.4 35.5 25.4 L35.5 26 Q31 22.4 26.5 26 Z" fill="#477050"/>` +
+    rect(30.4, 20.4, 1.2, 5, "#FFFFFF") +
+    rect(28.8, 21.6, 4.4, 1.2, "#FFFFFF") +
+    crown(31, 14.4, 6, "#E3C05B"),
 };
 
 const FALLBACK = (color) => field(color || "#8a8f86") + rect(0, HEIGHT - 6, WIDTH, 6, "rgba(0,0,0,0.18)");

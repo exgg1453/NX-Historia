@@ -1,15 +1,19 @@
 import { PROVIDERS, requestCompletion } from "./providers.js";
-import { buildSystemPrompt, buildTurnPrompt, WAIT_ACTION } from "./prompts.js";
+import { buildSystemPrompt, buildTurnPrompt, waitAction } from "./prompts.js";
 import { createState, applyTurn, parseModelResponse, buildOwnership } from "./engine.js";
 import { WorldMap } from "./map.js";
 import { flagMarkup } from "./flags.js";
 import { readValue, writeValue, removeValue } from "./storage.js";
+import { LANGUAGES, detectLanguage, setLanguage, getLanguage, t, text, applyStaticTranslations } from "./i18n.js";
 
 const SETTINGS_KEY = "nx-historia-settings";
+const LANGUAGE_KEY = "nx-historia-language";
 const SAVE_KEY = "nx-historia-save";
 
 const elements = {
   setup: document.getElementById("setup"),
+  languageButton: document.getElementById("languageButton"),
+  langSwitch: document.getElementById("langSwitch"),
   game: document.getElementById("game"),
   scenarioList: document.getElementById("scenarioList"),
   nationList: document.getElementById("nationList"),
@@ -80,7 +84,7 @@ function fillProviderSelect(select, selectedId) {
   Object.values(PROVIDERS).forEach((provider) => {
     const option = document.createElement("option");
     option.value = provider.id;
-    option.textContent = provider.label;
+    option.textContent = provider.labelKey ? t(provider.labelKey) : provider.label;
     if (provider.id === selectedId) {
       option.selected = true;
     }
@@ -90,7 +94,7 @@ function fillProviderSelect(select, selectedId) {
 
 function syncSetupProvider() {
   const provider = PROVIDERS[settings.providerId] || PROVIDERS.openrouter;
-  elements.providerHint.textContent = provider.hint;
+  elements.providerHint.textContent = t(provider.hintKey);
   elements.baseUrlField.hidden = !provider.requiresBaseUrl;
   elements.modelInput.value = settings.model || provider.defaultModel;
   elements.apiKeyInput.value = settings.apiKey || "";
@@ -131,9 +135,9 @@ function renderScenarioList() {
     year.textContent = scenario.year;
     const body = document.createElement("div");
     const title = document.createElement("h3");
-    title.textContent = scenario.title.replace(/^\d+\s*—\s*/, "");
+    title.textContent = text(scenario.title).replace(/^\d+\s*—\s*/, "");
     const summary = document.createElement("p");
-    summary.textContent = scenario.summary;
+    summary.textContent = text(scenario.summary);
     const strip = document.createElement("div");
     strip.className = "scenario-flags";
     strip.innerHTML = scenario.nations
@@ -161,7 +165,7 @@ function renderNationList() {
   if (!selectedScenario) {
     const note = document.createElement("p");
     note.className = "hint";
-    note.textContent = "Önce bir senaryo seç.";
+    note.textContent = t("pickScenarioFirst");
     elements.nationList.appendChild(note);
     return;
   }
@@ -174,7 +178,7 @@ function renderNationList() {
     }
     chip.innerHTML = flagMarkup(nation.flag, nation.color);
     const label = document.createElement("span");
-    label.textContent = nation.name;
+    label.textContent = text(nation.name);
     chip.appendChild(label);
     chip.addEventListener("click", () => {
       selectedNationCode = nation.code;
@@ -193,17 +197,17 @@ function gaugeClass(value) {
 
 function renderDossier() {
   const player = gameState.nations[gameState.playerCode];
-  elements.playerName.textContent = player.name;
-  elements.playerLeader.textContent = `${player.leader} · ${player.government}`;
+  elements.playerName.textContent = text(player.name);
+  elements.playerLeader.textContent = `${text(player.leader)} · ${text(player.government)}`;
   elements.playerFlag.innerHTML = flagMarkup(player.flag, player.color, "flag flag-lg");
-  elements.topIdentity.innerHTML = `${flagMarkup(player.flag, player.color, "flag flag-sm")}<span>${player.name}</span>`;
+  elements.topIdentity.innerHTML = `${flagMarkup(player.flag, player.color, "flag flag-sm")}<span>${text(player.name)}</span>`;
   elements.yearLabel.textContent = gameState.year;
-  elements.turnLabel.textContent = `${gameState.turn}. tur`;
+  elements.turnLabel.textContent = t("turnCount", { count: gameState.turn });
 
   const gauges = [
-    { label: "İstikrar", value: player.stability },
-    { label: "Ekonomi", value: player.economy },
-    { label: "Ordu", value: player.military },
+    { label: t("gaugeStability"), value: player.stability },
+    { label: t("gaugeEconomy"), value: player.economy },
+    { label: t("gaugeMilitary"), value: player.military },
   ];
   elements.gauges.innerHTML = "";
   gauges.forEach((gauge) => {
@@ -237,7 +241,7 @@ function renderDossier() {
       name.className = "relation-name";
       name.innerHTML = flagMarkup(gameState.nations[code].flag, gameState.nations[code].color, "flag flag-sm");
       const nameText = document.createElement("span");
-      nameText.textContent = gameState.nations[code].name;
+      nameText.textContent = text(gameState.nations[code].name);
       name.appendChild(nameText);
       const amount = document.createElement("span");
       amount.className = "relation-value";
@@ -249,7 +253,7 @@ function renderDossier() {
       elements.relations.appendChild(item);
     });
 
-  elements.territoryCount.textContent = `${player.territories.length} bölge`;
+  elements.territoryCount.textContent = t("territoryCount", { count: player.territories.length });
 }
 
 function renderLegend() {
@@ -262,7 +266,7 @@ function renderLegend() {
     row.className = "legend-row";
     row.innerHTML = flagMarkup(nation.flag, nation.color, "flag flag-sm");
     const label = document.createElement("span");
-    label.textContent = nation.name;
+    label.textContent = text(nation.name);
     row.appendChild(label);
     elements.mapLegend.appendChild(row);
   });
@@ -323,15 +327,15 @@ async function startGame(state, focusPlayer) {
   gameState = state;
   elements.setup.hidden = true;
   elements.game.hidden = false;
-  setBusy(true, "Harita hazırlanıyor…");
+  setBusy(true, t("preparingMap"));
   try {
     await ensureMap();
   } catch (error) {
     setBusy(false);
     addDispatch({
-      source: "Sistem",
-      title: "Harita yüklenemedi",
-      body: `${error.message} Sayfayı yenile veya bağlantını denetle.`,
+      source: t("sourceSystem"),
+      title: t("mapFailedTitle"),
+      body: t("mapFailedBody", { error: error.message }),
       tone: "crisis",
       year: state.year,
     });
@@ -352,13 +356,13 @@ async function submitAction(actionText) {
   }
   const player = gameState.nations[gameState.playerCode];
   addDispatch({
-    source: player.name,
-    title: "Emir",
+    source: text(player.name),
+    title: t("orderTitle"),
     body: actionText,
     tone: "player",
     year: gameState.year,
   });
-  setBusy(true, "Kançılaryalar toplanıyor…");
+  setBusy(true, t("thinking"));
   try {
     const raw = await requestCompletion({
       providerId: settings.providerId,
@@ -372,8 +376,8 @@ async function submitAction(actionText) {
     const applied = applyTurn(gameState, result);
     if (applied.narrative) {
       addDispatch({
-        source: "Dünya",
-        title: `${gameState.year} raporu`,
+        source: t("sourceWorld"),
+        title: t("reportTitle", { year: gameState.year }),
         body: applied.narrative,
         tone: "neutral",
         year: gameState.year,
@@ -382,9 +386,9 @@ async function submitAction(actionText) {
     applied.dispatches.forEach(addDispatch);
     if (gameState.verdict !== "ongoing") {
       addDispatch({
-        source: "Son",
-        title: gameState.verdict === "victory" ? "Zafer" : "Yenilgi",
-        body: applied.outcome?.reason || "Oyun bitti.",
+        source: t("endTitle"),
+        title: gameState.verdict === "victory" ? t("victory") : t("defeat"),
+        body: applied.outcome?.reason || t("gameOver"),
         tone: gameState.verdict === "victory" ? "alliance" : "war",
         year: gameState.year,
       });
@@ -394,9 +398,9 @@ async function submitAction(actionText) {
     persistGame();
   } catch (error) {
     addDispatch({
-      source: "Sistem",
-      title: "Emir işlenemedi",
-      body: `${error.message} Ayarlardan modeli veya anahtarı denetle, sonra emri tekrar gönder.`,
+      source: t("sourceSystem"),
+      title: t("turnFailedTitle"),
+      body: t("turnFailedBody", { error: error.message }),
       tone: "crisis",
       year: gameState.year,
     });
@@ -438,7 +442,7 @@ function bindEvents() {
     const provider = PROVIDERS[elements.providerSelect.value];
     elements.modelInput.value = provider.defaultModel;
     elements.baseUrlField.hidden = !provider.requiresBaseUrl;
-    elements.providerHint.textContent = provider.hint;
+    elements.providerHint.textContent = t(provider.hintKey);
     refreshStartButton();
   });
 
@@ -477,7 +481,7 @@ function bindEvents() {
     }
   });
 
-  elements.waitButton.addEventListener("click", () => submitAction(WAIT_ACTION));
+  elements.waitButton.addEventListener("click", () => submitAction(waitAction()));
 
   document.querySelectorAll(".map-controls button").forEach((button) => {
     button.addEventListener("click", () => {
@@ -550,11 +554,49 @@ function renderResumeCard(savedState) {
   elements.scenarioList.prepend(card);
 }
 
+function refreshLanguageUi() {
+  applyStaticTranslations();
+  const other = LANGUAGES.find((code) => code !== getLanguage());
+  elements.languageButton.textContent = other.toUpperCase();
+  elements.langSwitch.innerHTML = "";
+  LANGUAGES.forEach((code) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `lang-option${code === getLanguage() ? " is-active" : ""}`;
+    button.textContent = code.toUpperCase();
+    button.addEventListener("click", () => switchLanguage(code));
+    elements.langSwitch.appendChild(button);
+  });
+  elements.thinkingLabel.textContent = t("thinking");
+  fillProviderSelect(elements.providerSelect, settings.providerId);
+  const provider = PROVIDERS[settings.providerId] || PROVIDERS.openrouter;
+  elements.providerHint.textContent = t(provider.hintKey);
+  renderScenarioList();
+  renderNationList();
+  if (gameState) {
+    renderDossier();
+    renderLegend();
+  }
+}
+
+function switchLanguage(language) {
+  if (language === getLanguage()) {
+    return;
+  }
+  setLanguage(language);
+  writeValue(LANGUAGE_KEY, language);
+  refreshLanguageUi();
+}
+
 async function boot() {
+  setLanguage(detectLanguage(readValue(LANGUAGE_KEY, null)));
   fillProviderSelect(elements.providerSelect, settings.providerId);
   syncSetupProvider();
   bindEvents();
-  renderNationList();
+  elements.languageButton.addEventListener("click", () => {
+    switchLanguage(LANGUAGES.find((code) => code !== getLanguage()));
+  });
+  refreshLanguageUi();
   showPanel("map");
   try {
     const response = await fetch("data/scenarios.json");
@@ -562,7 +604,7 @@ async function boot() {
     renderScenarioList();
   } catch (error) {
     elements.setupError.hidden = false;
-    elements.setupError.textContent = "Senaryolar yüklenemedi. Sayfayı yenile.";
+    elements.setupError.textContent = t("scenariosFailed");
     return;
   }
   const savedState = readValue(SAVE_KEY, null);

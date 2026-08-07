@@ -1,0 +1,228 @@
+#!/usr/bin/env python3
+
+import argparse
+import json
+import sys
+import urllib.error
+import urllib.request
+
+OPENROUTER_MODELS_URL = "https://openrouter.ai/api/v1/models"
+SNAPSHOT_DATE = "2026-05"
+
+FALLBACK_MODELS = [
+    {"id": "anthropic/claude-opus-4.1", "name": "Claude Opus 4.1", "provider": "anthropic", "prompt": 15.0, "completion": 75.0, "context": 200000},
+    {"id": "anthropic/claude-sonnet-4.5", "name": "Claude Sonnet 4.5", "provider": "anthropic", "prompt": 3.0, "completion": 15.0, "context": 200000},
+    {"id": "anthropic/claude-haiku-4.5", "name": "Claude Haiku 4.5", "provider": "anthropic", "prompt": 1.0, "completion": 5.0, "context": 200000},
+    {"id": "openai/gpt-4.1", "name": "GPT-4.1", "provider": "openai", "prompt": 2.0, "completion": 8.0, "context": 1047576},
+    {"id": "openai/gpt-4.1-mini", "name": "GPT-4.1 mini", "provider": "openai", "prompt": 0.4, "completion": 1.6, "context": 1047576},
+    {"id": "openai/gpt-4o-mini", "name": "GPT-4o mini", "provider": "openai", "prompt": 0.15, "completion": 0.6, "context": 128000},
+    {"id": "google/gemini-2.5-pro", "name": "Gemini 2.5 Pro", "provider": "google", "prompt": 1.25, "completion": 10.0, "context": 1048576},
+    {"id": "google/gemini-2.5-flash", "name": "Gemini 2.5 Flash", "provider": "google", "prompt": 0.3, "completion": 2.5, "context": 1048576},
+    {"id": "deepseek/deepseek-chat-v3:free", "name": "DeepSeek V3 (ücretsiz)", "provider": "deepseek", "prompt": 0.0, "completion": 0.0, "context": 163840},
+    {"id": "deepseek/deepseek-r1:free", "name": "DeepSeek R1 (ücretsiz)", "provider": "deepseek", "prompt": 0.0, "completion": 0.0, "context": 163840},
+    {"id": "meta-llama/llama-3.3-70b-instruct:free", "name": "Llama 3.3 70B (ücretsiz)", "provider": "meta-llama", "prompt": 0.0, "completion": 0.0, "context": 65536},
+    {"id": "qwen/qwen3-235b-a22b:free", "name": "Qwen3 235B (ücretsiz)", "provider": "qwen", "prompt": 0.0, "completion": 0.0, "context": 131072},
+    {"id": "mistralai/mistral-small-3.2-24b-instruct:free", "name": "Mistral Small 3.2 (ücretsiz)", "provider": "mistralai", "prompt": 0.0, "completion": 0.0, "context": 131072},
+]
+
+
+def to_million_price(raw_value):
+    try:
+        return float(raw_value) * 1000000.0
+    except (TypeError, ValueError):
+        return None
+
+
+def fetch_live_models(timeout):
+    request = urllib.request.Request(
+        OPENROUTER_MODELS_URL,
+        headers={"Accept": "application/json", "User-Agent": "nx-models/1.0"},
+    )
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+    models = []
+    for entry in payload.get("data", []):
+        identifier = entry.get("id") or ""
+        pricing = entry.get("pricing") or {}
+        models.append(
+            {
+                "id": identifier,
+                "name": entry.get("name") or identifier,
+                "provider": identifier.split("/")[0] if "/" in identifier else "diğer",
+                "prompt": to_million_price(pricing.get("prompt")),
+                "completion": to_million_price(pricing.get("completion")),
+                "context": entry.get("context_length"),
+            }
+        )
+    return models
+
+
+def is_free(model):
+    if model["id"].endswith(":free"):
+        return True
+    prompt = model.get("prompt")
+    completion = model.get("completion")
+    if prompt is None or completion is None:
+        return False
+    return prompt <= 0.0 and completion <= 0.0
+
+
+def format_price(value):
+    if value is None:
+        return "?"
+    if value <= 0.0:
+        return "0"
+    if value < 1.0:
+        return f"{value:.3f}".rstrip("0").rstrip(".")
+    return f"{value:.2f}".rstrip("0").rstrip(".")
+
+
+def format_context(value):
+    if not value:
+        return "?"
+    if value >= 1000000:
+        return f"{value / 1000000:.1f}M".replace(".0M", "M")
+    if value >= 1000:
+        return f"{value // 1000}K"
+    return str(value)
+
+
+def truncate(text, width):
+    if len(text) <= width:
+        return text
+    return text[: width - 1] + "…"
+
+
+def sort_key(model):
+    free_rank = 0 if is_free(model) else 1
+    price = model.get("prompt")
+    return (free_rank, model["provider"], price if price is not None else 9999.0)
+
+
+def apply_filters(models, arguments):
+    selected = models
+    if arguments.free:
+        selected = [model for model in selected if is_free(model)]
+    if arguments.paid:
+        selected = [model for model in selected if not is_free(model)]
+    if arguments.provider:
+        needle = arguments.provider.lower()
+        selected = [model for model in selected if needle in model["provider"].lower()]
+    if arguments.search:
+        needle = arguments.search.lower()
+        selected = [
+            model
+            for model in selected
+            if needle in model["id"].lower() or needle in model["name"].lower()
+        ]
+    if arguments.max_price is not None:
+        selected = [
+            model
+            for model in selected
+            if model.get("prompt") is not None and model["prompt"] <= arguments.max_price
+        ]
+    selected.sort(key=sort_key)
+    if arguments.limit and arguments.limit > 0:
+        selected = selected[: arguments.limit]
+    return selected
+
+
+def print_table(models):
+    if not models:
+        print("Eşleşen model yok.")
+        return
+    headers = ["MODEL", "SAĞLAYICI", "DURUM", "GİRDİ $/1M", "ÇIKTI $/1M", "BAĞLAM"]
+    rows = []
+    for model in models:
+        rows.append(
+            [
+                truncate(model["id"], 44),
+                truncate(model["provider"], 16),
+                "Ücretsiz" if is_free(model) else "Ücretli",
+                format_price(model.get("prompt")),
+                format_price(model.get("completion")),
+                format_context(model.get("context")),
+            ]
+        )
+    widths = [len(header) for header in headers]
+    for row in rows:
+        for index, cell in enumerate(row):
+            widths[index] = max(widths[index], len(cell))
+    line = "  ".join(header.ljust(widths[index]) for index, header in enumerate(headers))
+    print(line)
+    print("-" * len(line))
+    for row in rows:
+        print("  ".join(cell.ljust(widths[index]) for index, cell in enumerate(row)))
+
+
+def print_summary(models, source_label):
+    free_count = sum(1 for model in models if is_free(model))
+    paid_count = len(models) - free_count
+    print()
+    print(f"Toplam {len(models)} model · {free_count} ücretsiz · {paid_count} ücretli")
+    print(f"Kaynak: {source_label}")
+    print("Fiyatlar milyon jeton başına ABD dolarıdır.")
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(
+        prog="nx_models.tr",
+        description="Gerçek yapay zekâ modellerini ücretsiz ve ücretli olarak listeler.",
+    )
+    parser.add_argument("--free", action="store_true", help="yalnızca ücretsiz modelleri göster")
+    parser.add_argument("--paid", action="store_true", help="yalnızca ücretli modelleri göster")
+    parser.add_argument("--provider", help="sağlayıcıya göre süz, örnek: anthropic")
+    parser.add_argument("--search", help="model adında veya kimliğinde ara")
+    parser.add_argument("--max-price", type=float, dest="max_price", help="girdi fiyatı üst sınırı, $/1M")
+    parser.add_argument("--limit", type=int, default=40, help="gösterilecek satır sayısı, 0 tümü")
+    parser.add_argument("--json", action="store_true", help="JSON olarak yaz")
+    parser.add_argument("--offline", action="store_true", help="ağa çıkmadan yerleşik listeyi kullan")
+    parser.add_argument("--timeout", type=float, default=15.0, help="ağ zaman aşımı, saniye")
+    return parser
+
+
+def main():
+    arguments = build_parser().parse_args()
+    if arguments.free and arguments.paid:
+        print("--free ve --paid birlikte kullanılamaz.", file=sys.stderr)
+        return 2
+
+    if arguments.offline:
+        models = list(FALLBACK_MODELS)
+        source_label = f"yerleşik liste ({SNAPSHOT_DATE} anlık görüntüsü)"
+    else:
+        try:
+            models = fetch_live_models(arguments.timeout)
+            source_label = "openrouter.ai/api/v1/models (canlı)"
+        except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError, OSError) as error:
+            models = list(FALLBACK_MODELS)
+            source_label = f"yerleşik liste ({SNAPSHOT_DATE} anlık görüntüsü)"
+            print(f"Canlı liste alınamadı: {error}", file=sys.stderr)
+            print("Yerleşik listeye düşüldü, fiyatlar güncel olmayabilir.", file=sys.stderr)
+            print(file=sys.stderr)
+
+    selected = apply_filters(models, arguments)
+
+    if arguments.json:
+        output = [
+            {
+                "id": model["id"],
+                "name": model["name"],
+                "provider": model["provider"],
+                "durum": "ücretsiz" if is_free(model) else "ücretli",
+                "girdi_1m_usd": model.get("prompt"),
+                "cikti_1m_usd": model.get("completion"),
+                "baglam": model.get("context"),
+            }
+            for model in selected
+        ]
+        print(json.dumps(output, ensure_ascii=False, indent=2))
+        return 0
+
+    print_table(selected)
+    print_summary(selected, source_label)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

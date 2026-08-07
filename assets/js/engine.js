@@ -1,3 +1,5 @@
+import { t } from "./i18n.js";
+
 function clampStat(value, fallbackValue) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
@@ -70,7 +72,7 @@ export function parseModelResponse(rawText) {
   const firstBrace = text.indexOf("{");
   const lastBrace = text.lastIndexOf("}");
   if (firstBrace === -1 || lastBrace === -1) {
-    throw new Error("Motor okunabilir bir yanıt döndürmedi.");
+    throw new Error(t("errorUnreadable"));
   }
   const candidate = text.slice(firstBrace, lastBrace + 1);
   return JSON.parse(candidate);
@@ -91,11 +93,11 @@ export function applyTurn(state, result) {
       }
       state.nations[nation.code] = {
         code: nation.code,
-        name: nation.name || nation.code,
+        name: nation.name ? { tr: String(nation.name), en: String(nation.name) } : { tr: nation.code, en: nation.code },
         color: nation.color || "#7a5c3e",
         flag: null,
-        leader: nation.leader || "Bilinmiyor",
-        government: nation.government || "Bilinmiyor",
+        leader: nation.leader ? { tr: String(nation.leader), en: String(nation.leader) } : { tr: "Bilinmiyor", en: "Unknown" },
+        government: nation.government ? { tr: String(nation.government), en: String(nation.government) } : { tr: "Bilinmiyor", en: "Unknown" },
         stability: clampStat(nation.stability, 50),
         economy: clampStat(nation.economy, 50),
         military: clampStat(nation.military, 50),
@@ -117,9 +119,9 @@ export function applyTurn(state, result) {
       if (update.stability !== undefined) nation.stability = clampStat(update.stability, nation.stability);
       if (update.economy !== undefined) nation.economy = clampStat(update.economy, nation.economy);
       if (update.military !== undefined) nation.military = clampStat(update.military, nation.military);
-      if (update.leader) nation.leader = String(update.leader);
-      if (update.government) nation.government = String(update.government);
-      if (update.name) nation.name = String(update.name);
+      if (update.leader) nation.leader = { tr: String(update.leader), en: String(update.leader) };
+      if (update.government) nation.government = { tr: String(update.government), en: String(update.government) };
+      if (update.name) nation.name = { tr: String(update.name), en: String(update.name) };
     });
   }
 

@@ -1,3 +1,5 @@
+import { t } from "./i18n.js";
+
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 const DEFAULT_VIEW = { x: -180, y: -84, width: 360, height: 150 };
 const MIN_WIDTH = 18;
@@ -43,7 +45,7 @@ export class WorldMap {
   async load(dataUrl) {
     const response = await fetch(dataUrl);
     if (!response.ok) {
-      throw new Error("Harita verisi yüklenemedi.");
+      throw new Error(t("errorMapData"));
     }
     const collection = await response.json();
     this.render(collection);

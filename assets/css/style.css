@@ -756,3 +756,32 @@ input:focus, select:focus, textarea:focus {
   .console-mark { display: none; }
   .setup { padding: 32px 18px 60px; }
 }
+
+.lang-switch {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.lang-option {
+  background: transparent;
+  border: 1px solid var(--paper-line);
+  padding: 5px 11px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+.lang-option.is-active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.lang-button {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}

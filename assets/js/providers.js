@@ -1,38 +1,41 @@
+import { t } from "./i18n.js";
+
 export const PROVIDERS = {
   openrouter: {
     id: "openrouter",
     label: "OpenRouter",
+    hintKey: "hintOpenrouter",
     defaultModel: "anthropic/claude-sonnet-4.5",
     requiresBaseUrl: false,
-    hint: "Anahtarını openrouter.ai/keys adresinden alabilirsin.",
   },
   anthropic: {
     id: "anthropic",
     label: "Anthropic",
+    hintKey: "hintAnthropic",
     defaultModel: "claude-sonnet-4-5",
     requiresBaseUrl: false,
-    hint: "Anahtarını console.anthropic.com adresinden alabilirsin.",
   },
   gemini: {
     id: "gemini",
     label: "Google Gemini",
+    hintKey: "hintGemini",
     defaultModel: "gemini-2.5-flash",
     requiresBaseUrl: false,
-    hint: "Anahtarını aistudio.google.com/apikey adresinden alabilirsin.",
   },
   openai: {
     id: "openai",
     label: "OpenAI",
+    hintKey: "hintOpenai",
     defaultModel: "gpt-4.1",
     requiresBaseUrl: false,
-    hint: "Anahtarını platform.openai.com/api-keys adresinden alabilirsin.",
   },
   custom: {
     id: "custom",
+    labelKey: "labelCustom",
     label: "OpenAI uyumlu sunucu",
+    hintKey: "hintCustom",
     defaultModel: "local-model",
     requiresBaseUrl: true,
-    hint: "Kendi sunucunun adresini yaz. Adres /chat/completions ile birleştirilir.",
   },
 };
 
@@ -79,7 +82,7 @@ async function requestChatCompletions({ endpoint, headers, model, systemPrompt, 
   if (Array.isArray(message?.content)) {
     return message.content.map((part) => part.text || "").join("");
   }
-  throw new Error("Sağlayıcı boş yanıt döndürdü.");
+  throw new Error(t("errorEmptyResponse"));
 }
 
 async function requestAnthropic({ apiKey, model, systemPrompt, userPrompt }) {
@@ -108,7 +111,7 @@ async function requestAnthropic({ apiKey, model, systemPrompt, userPrompt }) {
     .map((block) => block.text)
     .join("");
   if (!text) {
-    throw new Error("Sağlayıcı boş yanıt döndürdü.");
+    throw new Error(t("errorEmptyResponse"));
   }
   return text;
 }
@@ -139,7 +142,7 @@ async function requestGemini({ apiKey, model, systemPrompt, userPrompt }) {
     .map((part) => part.text || "")
     .join("");
   if (!text) {
-    throw new Error("Sağlayıcı boş yanıt döndürdü.");
+    throw new Error(t("errorEmptyResponse"));
   }
   return text;
 }
@@ -147,7 +150,7 @@ async function requestGemini({ apiKey, model, systemPrompt, userPrompt }) {
 export async function requestCompletion({ providerId, apiKey, model, baseUrl, systemPrompt, userPrompt }) {
   const provider = PROVIDERS[providerId];
   if (!provider) {
-    throw new Error("Bilinmeyen sağlayıcı.");
+    throw new Error(t("errorUnknownProvider"));
   }
   const selectedModel = model || provider.defaultModel;
   if (providerId === "anthropic") {
@@ -179,7 +182,7 @@ export async function requestCompletion({ providerId, apiKey, model, baseUrl, sy
     });
   }
   if (!baseUrl) {
-    throw new Error("Sunucu adresi gerekli.");
+    throw new Error(t("errorBaseUrlRequired"));
   }
   return requestChatCompletions({
     endpoint: `${stripTrailingSlash(baseUrl)}/chat/completions`,

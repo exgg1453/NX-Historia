@@ -15,46 +15,47 @@
 
 <div id="setup" class="setup">
   <div class="setup-inner">
+    <div class="lang-switch" id="langSwitch"></div>
     <header class="setup-head">
-      <p class="eyebrow">NX Team · Novatex</p>
+      <p class="eyebrow" data-i18n="eyebrow">NX TEAM · NOVATEX</p>
       <h1 class="wordmark">NX <em>Historia</em></h1>
-      <p class="lede">Bir ülke seç, bir tarihte dur, sonrasını kendin yaz. Kural kitabı yok; motor yapay zekânın kendisi.</p>
+      <p class="lede" data-i18n="lede"></p>
     </header>
 
     <section class="setup-block">
-      <h2 class="block-title"><span class="block-index">01</span> Senaryo</h2>
+      <h2 class="block-title"><span class="block-index">01</span> <span data-i18n="blockScenario"></span></h2>
       <div id="scenarioList" class="scenario-list"></div>
     </section>
 
     <section class="setup-block">
-      <h2 class="block-title"><span class="block-index">02</span> Ülke</h2>
+      <h2 class="block-title"><span class="block-index">02</span> <span data-i18n="blockNation"></span></h2>
       <div id="nationList" class="nation-list"></div>
     </section>
 
     <section class="setup-block">
-      <h2 class="block-title"><span class="block-index">03</span> Motor</h2>
+      <h2 class="block-title"><span class="block-index">03</span> <span data-i18n="blockEngine"></span></h2>
       <div class="field-row">
         <label class="field">
-          <span class="field-label">Sağlayıcı</span>
+          <span class="field-label" data-i18n="fieldProvider"></span>
           <select id="providerSelect"></select>
         </label>
         <label class="field">
-          <span class="field-label">Model</span>
+          <span class="field-label" data-i18n="fieldModel"></span>
           <input id="modelInput" type="text" spellcheck="false" autocomplete="off">
         </label>
       </div>
       <label class="field">
-        <span class="field-label">API anahtarı</span>
-        <input id="apiKeyInput" type="password" spellcheck="false" autocomplete="off" placeholder="Anahtar bu tarayıcıda kalır, hiçbir sunucuya gönderilmez">
+        <span class="field-label" data-i18n="fieldApiKey"></span>
+        <input id="apiKeyInput" type="password" spellcheck="false" autocomplete="off" data-i18n-placeholder="apiKeyPlaceholder">
       </label>
       <label class="field" id="baseUrlField" hidden>
-        <span class="field-label">Sunucu adresi</span>
-        <input id="baseUrlInput" type="text" spellcheck="false" autocomplete="off" placeholder="https://ornek.com/v1">
+        <span class="field-label" data-i18n="fieldBaseUrl"></span>
+        <input id="baseUrlInput" type="text" spellcheck="false" autocomplete="off" data-i18n-placeholder="baseUrlPlaceholder">
       </label>
       <p id="providerHint" class="hint"></p>
     </section>
 
-    <button id="startButton" class="primary" disabled>Yönetimi devral</button>
+    <button id="startButton" class="primary" data-i18n="startButton" disabled></button>
     <p id="setupError" class="error" hidden></p>
   </div>
 </div>
@@ -68,10 +69,11 @@
       <span class="clock-turn" id="turnLabel">Tur 0</span>
     </div>
     <div class="topbar-actions">
-      <button id="dossierTab" class="tab" type="button">Dosya</button>
-      <button id="mapTab" class="tab is-active" type="button">Harita</button>
-      <button id="feedTab" class="tab" type="button">Sevkler</button>
-      <button id="settingsButton" class="icon-button" type="button" aria-label="Motor ayarları">⚙</button>
+      <button id="dossierTab" class="tab" type="button" data-i18n="tabDossier"></button>
+      <button id="mapTab" class="tab is-active" type="button" data-i18n="tabMap"></button>
+      <button id="feedTab" class="tab" type="button" data-i18n="tabFeed"></button>
+      <button id="languageButton" class="icon-button lang-button" type="button" data-i18n-label="languageLabel">EN</button>
+      <button id="settingsButton" class="icon-button" type="button" data-i18n-label="settingsLabel">⚙</button>
     </div>
   </header>
 
@@ -85,9 +87,9 @@
         </div>
       </div>
       <div class="gauges" id="gauges"></div>
-      <h3 class="rail-title">İlişkiler</h3>
+      <h3 class="rail-title" data-i18n="relationsTitle"></h3>
       <ul class="relations" id="relations"></ul>
-      <h3 class="rail-title">Topraklar</h3>
+      <h3 class="rail-title" data-i18n="territoriesTitle"></h3>
       <p class="territory-count" id="territoryCount">—</p>
     </aside>
 
@@ -95,55 +97,55 @@
       <div id="mapHost" class="map-host"></div>
       <div class="map-legend" id="mapLegend"></div>
       <div class="map-controls">
-        <button type="button" data-zoom="in" aria-label="Yakınlaş">+</button>
-        <button type="button" data-zoom="out" aria-label="Uzaklaş">−</button>
-        <button type="button" data-zoom="reset" aria-label="Sığdır">⤢</button>
+        <button type="button" data-zoom="in" data-i18n-label="zoomIn">+</button>
+        <button type="button" data-zoom="out" data-i18n-label="zoomOut">−</button>
+        <button type="button" data-zoom="reset" data-i18n-label="zoomReset">⤢</button>
       </div>
       <div class="map-tooltip" id="mapTooltip" hidden></div>
     </section>
 
     <aside class="rail rail-right" id="feedPanel">
-      <h3 class="rail-title">Sevk defteri</h3>
+      <h3 class="rail-title" data-i18n="feedTitle"></h3>
       <div class="feed" id="feed"></div>
     </aside>
   </div>
 
   <form class="console" id="commandForm">
-    <div class="console-mark">EMİR</div>
-    <textarea id="commandInput" rows="1" placeholder="Ne yapıyorsun?" spellcheck="false"></textarea>
+    <div class="console-mark" data-i18n="consoleMark"></div>
+    <textarea id="commandInput" rows="1" data-i18n-placeholder="commandPlaceholder" spellcheck="false"></textarea>
     <div class="console-actions">
-      <button type="button" id="waitButton" class="ghost">Bekle</button>
-      <button type="submit" id="sendButton" class="primary compact">Gönder</button>
+      <button type="button" id="waitButton" class="ghost" data-i18n="waitButton"></button>
+      <button type="submit" id="sendButton" class="primary compact" data-i18n="sendButton"></button>
     </div>
   </form>
 
   <div class="thinking" id="thinking" hidden>
     <div class="thinking-bar"></div>
-    <span id="thinkingLabel">Kançılaryalar toplanıyor…</span>
+    <span id="thinkingLabel"></span>
   </div>
 </main>
 
 <dialog id="settingsDialog" class="dialog">
-  <h2>Motor ayarları</h2>
+  <h2 data-i18n="settingsTitle"></h2>
   <label class="field">
-    <span class="field-label">Sağlayıcı</span>
+    <span class="field-label" data-i18n="fieldProvider"></span>
     <select id="settingsProvider"></select>
   </label>
   <label class="field">
-    <span class="field-label">Model</span>
+    <span class="field-label" data-i18n="fieldModel"></span>
     <input id="settingsModel" type="text" spellcheck="false">
   </label>
   <label class="field">
-    <span class="field-label">API anahtarı</span>
+    <span class="field-label" data-i18n="fieldApiKey"></span>
     <input id="settingsKey" type="password" spellcheck="false">
   </label>
   <label class="field" id="settingsBaseField" hidden>
-    <span class="field-label">Sunucu adresi</span>
+    <span class="field-label" data-i18n="fieldBaseUrl"></span>
     <input id="settingsBaseUrl" type="text" spellcheck="false">
   </label>
   <div class="dialog-actions">
-    <button type="button" id="resetGame" class="ghost danger">Oyunu bitir</button>
-    <button type="button" id="settingsSave" class="primary compact">Kaydet</button>
+    <button type="button" id="resetGame" class="ghost danger" data-i18n="endGame"></button>
+    <button type="button" id="settingsSave" class="primary compact" data-i18n="saveButton"></button>
   </div>
 </dialog>
 

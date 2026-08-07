@@ -72,3 +72,26 @@ NX Team · Novatex
 ## Bayraklar
 
 Bayraklar `assets/js/flags.js` içinde vektör olarak çizilir; dış servis veya görsel dosyası yoktur. Her senaryo devletinin `flag` alanı bu setteki bir kimliği gösterir, böylece aynı ülke kodu farklı dönemlerde farklı bayrak taşıyabilir. Bilinmeyen kimlikte devletin rengi düz alan olarak kullanılır.
+
+## Diller
+
+Site Türkçe ve İngilizce çalışır. Dil sırasıyla `?lang=` parametresinden, daha önce yapılan seçimden ve tarayıcı dilinden belirlenir; sağ üstteki düğmeyle her an değiştirilebilir.
+
+- Türkçe: `tr.html` veya `index.html?lang=tr`
+- İngilizce: `en.html` veya `index.html?lang=en`
+
+Arayüz metinleri `assets/js/i18n.js` içinde, senaryo metinleri `data/scenarios.json` içinde `{ "tr": ..., "en": ... }` biçimindedir. Yapay zekâya giden sistem istemi de seçili dile göre değişir, yani anlatı ve sevkler o dilde gelir.
+
+## Model listesi aracı
+
+`tools/models.py` gerçek model listelerini çeker ve her modelin ücretli mi ücretsiz mi olduğunu yazar. Yalnızca standart kütüphaneyi kullanır.
+
+```bash
+python3 tools/models.py                          # OpenRouter, Türkçe, fiyata göre sıralı
+python3 tools/models.py --free-only              # sadece ücretsiz modeller
+python3 tools/models.py --lang en --sort context # İngilizce, bağlam boyutuna göre
+python3 tools/models.py --search claude --json   # arama, JSON çıktı
+python3 tools/models.py --provider all           # anahtar verilen tüm sağlayıcılar
+```
+
+OpenRouter listesi anahtar istemez ve gerçek fiyat verisi döndürür. Anthropic, OpenAI ve Gemini listeleri için sırasıyla `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY` ortam değişkenleri okunur; bu API'ler fiyat döndürmediği için Anthropic ve OpenAI ücretli, Gemini bilinmiyor olarak işaretlenir.
