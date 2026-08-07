@@ -270,6 +270,10 @@ const FLAGS = {
     crown(31, 14.4, 6, "#E3C05B"),
 };
 
+const FLAG_ALIASES = {
+  ottoman: "tr",
+};
+
 let fileFlags = {};
 
 export async function loadFlagFiles(url = "data/flags.json") {
@@ -299,8 +303,9 @@ export function hasFlagFile(flagId) {
 const FALLBACK = (color) => field(color || "#8a8f86") + rect(0, HEIGHT - 6, WIDTH, 6, "rgba(0,0,0,0.18)");
 
 export function flagMarkup(flagId, fallbackColor, className = "flag") {
-  if (flagId && fileFlags[flagId]) {
-    return `<img class="${className}" src="assets/flags/${fileFlags[flagId]}" alt="" loading="lazy" decoding="async">`;
+  const fileName = flagId ? fileFlags[flagId] || fileFlags[FLAG_ALIASES[flagId]] : null;
+  if (fileName) {
+    return `<img class="${className}" src="assets/flags/${fileName}" alt="" loading="lazy" decoding="async">`;
   }
   const builder = FLAGS[flagId];
   const clipId = nextClipId();

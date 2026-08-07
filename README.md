@@ -89,6 +89,8 @@ python3 tools/fetch_flags.py --lang en          # İngilizce çıktı
 
 Her kimlik için birden çok aday dosya adı denenir, ilki bulunamazsa sonraki denenir. İndirme bittiğinde `data/flags.json` yeniden yazılır; dosyaları depoya işlemek yeterlidir.
 
+Bir kimlik başka bir kimliğin dosyasını kullanabilir. `assets/js/flags.js` içindeki `FLAG_ALIASES` bunu tanımlar; örneğin 1914 Osmanlı bayrağı günümüz Türkiye dosyasına yönlendirilmiştir. Takma adlar manifesto yeniden yazıldığında bozulmaz.
+
 Bayrağı elle de ekleyebilirsin: dosyayı `assets/flags/<kimlik>.<uzantı>` olarak koy, sonra manifestoyu tazele.
 
 ```bash
