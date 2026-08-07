@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NX Historia — Alternatif tarih kum havuzu</title>
+<meta name="description" content="Bir ülke ve bir tarih seç, emirlerini kendi cümlelerinle yaz, dünyanın nasıl değiştiğini gör.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Karla:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div id="setup" class="setup">
+  <div class="setup-inner">
+    <header class="setup-head">
+      <p class="eyebrow">NX Team · Novatex</p>
+      <h1 class="wordmark">NX <em>Historia</em></h1>
+      <p class="lede">Bir ülke seç, bir tarihte dur, sonrasını kendin yaz. Kural kitabı yok; motor yapay zekânın kendisi.</p>
+    </header>
+
+    <section class="setup-block">
+      <h2 class="block-title"><span class="block-index">01</span> Senaryo</h2>
+      <div id="scenarioList" class="scenario-list"></div>
+    </section>
+
+    <section class="setup-block">
+      <h2 class="block-title"><span class="block-index">02</span> Ülke</h2>
+      <div id="nationList" class="nation-list"></div>
+    </section>
+
+    <section class="setup-block">
+      <h2 class="block-title"><span class="block-index">03</span> Motor</h2>
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">Sağlayıcı</span>
+          <select id="providerSelect"></select>
+        </label>
+        <label class="field">
+          <span class="field-label">Model</span>
+          <input id="modelInput" type="text" spellcheck="false" autocomplete="off">
+        </label>
+      </div>
+      <label class="field">
+        <span class="field-label">API anahtarı</span>
+        <input id="apiKeyInput" type="password" spellcheck="false" autocomplete="off" placeholder="Anahtar bu tarayıcıda kalır, hiçbir sunucuya gönderilmez">
+      </label>
+      <label class="field" id="baseUrlField" hidden>
+        <span class="field-label">Sunucu adresi</span>
+        <input id="baseUrlInput" type="text" spellcheck="false" autocomplete="off" placeholder="https://ornek.com/v1">
+      </label>
+      <p id="providerHint" class="hint"></p>
+    </section>
+
+    <button id="startButton" class="primary" disabled>Yönetimi devral</button>
+    <p id="setupError" class="error" hidden></p>
+  </div>
+</div>
+
+<main id="game" class="game" hidden>
+  <header class="topbar">
+    <button class="wordmark-small" id="homeButton" type="button">NX <em>Historia</em></button>
+    <div class="clock">
+      <span class="clock-year" id="yearLabel">1939</span>
+      <span class="clock-turn" id="turnLabel">Tur 0</span>
+    </div>
+    <div class="topbar-actions">
+      <button id="dossierTab" class="tab" type="button">Dosya</button>
+      <button id="mapTab" class="tab is-active" type="button">Harita</button>
+      <button id="feedTab" class="tab" type="button">Sevkler</button>
+      <button id="settingsButton" class="icon-button" type="button" aria-label="Motor ayarları">⚙</button>
+    </div>
+  </header>
+
+  <div class="stage">
+    <aside class="rail rail-left" id="dossierPanel">
+      <div class="dossier-head">
+        <span class="swatch" id="playerSwatch"></span>
+        <div>
+          <h2 id="playerName">—</h2>
+          <p id="playerLeader" class="sub">—</p>
+        </div>
+      </div>
+      <div class="gauges" id="gauges"></div>
+      <h3 class="rail-title">İlişkiler</h3>
+      <ul class="relations" id="relations"></ul>
+      <h3 class="rail-title">Topraklar</h3>
+      <p class="territory-count" id="territoryCount">—</p>
+    </aside>
+
+    <section class="map-wrap" id="mapPanel">
+      <div id="mapHost" class="map-host"></div>
+      <div class="map-legend" id="mapLegend"></div>
+      <div class="map-controls">
+        <button type="button" data-zoom="in" aria-label="Yakınlaş">+</button>
+        <button type="button" data-zoom="out" aria-label="Uzaklaş">−</button>
+        <button type="button" data-zoom="reset" aria-label="Sığdır">⤢</button>
+      </div>
+      <div class="map-tooltip" id="mapTooltip" hidden></div>
+    </section>
+
+    <aside class="rail rail-right" id="feedPanel">
+      <h3 class="rail-title">Sevk defteri</h3>
+      <div class="feed" id="feed"></div>
+    </aside>
+  </div>
+
+  <form class="console" id="commandForm">
+    <div class="console-mark">EMİR</div>
+    <textarea id="commandInput" rows="1" placeholder="Ne yapıyorsun? Örnek: Polonya'ya saldırmazlık paktı teklif et ve Sovyetler'e gizli bir görüşme çağrısı gönder." spellcheck="false"></textarea>
+    <div class="console-actions">
+      <button type="button" id="waitButton" class="ghost">Bekle</button>
+      <button type="submit" id="sendButton" class="primary compact">Gönder</button>
+    </div>
+  </form>
+
+  <div class="thinking" id="thinking" hidden>
+    <div class="thinking-bar"></div>
+    <span id="thinkingLabel">Kançılaryalar toplanıyor…</span>
+  </div>
+</main>
+
+<dialog id="settingsDialog" class="dialog">
+  <h2>Motor ayarları</h2>
+  <label class="field">
+    <span class="field-label">Sağlayıcı</span>
+    <select id="settingsProvider"></select>
+  </label>
+  <label class="field">
+    <span class="field-label">Model</span>
+    <input id="settingsModel" type="text" spellcheck="false">
+  </label>
+  <label class="field">
+    <span class="field-label">API anahtarı</span>
+    <input id="settingsKey" type="password" spellcheck="false">
+  </label>
+  <label class="field" id="settingsBaseField" hidden>
+    <span class="field-label">Sunucu adresi</span>
+    <input id="settingsBaseUrl" type="text" spellcheck="false">
+  </label>
+  <div class="dialog-actions">
+    <button type="button" id="resetGame" class="ghost danger">Oyunu bitir</button>
+    <button type="button" id="settingsSave" class="primary compact">Kaydet</button>
+  </div>
+</dialog>
+
+<script type="module" src="assets/js/app.js"></script>
+</body>
+</html>

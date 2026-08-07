@@ -1,0 +1,139 @@
+[
+  {
+    "id": "1939-kivilcim",
+    "title": "1939 — Kıvılcım",
+    "year": 1939,
+    "summary": "Danzig meselesi düğümlendi, seferberlik emirleri masada bekliyor. Bir hafta içinde her şey değişebilir.",
+    "nations": [
+      { "code": "DEU", "name": "Almanya", "color": "#5c6b73", "leader": "Adolf Hitler", "government": "Tek parti diktatörlüğü", "stability": 72, "economy": 68, "military": 88, "territories": ["DEU", "AUT", "CZE"] },
+      { "code": "GBR", "name": "Britanya İmparatorluğu", "color": "#8a3d3d", "leader": "Neville Chamberlain", "government": "Anayasal monarşi", "stability": 70, "economy": 76, "military": 74, "territories": ["GBR", "IND", "PAK", "BGD", "MMR", "EGY", "SDN", "ZAF", "AUS", "NZL", "CAN", "NGA", "KEN", "IRQ", "JOR", "ISR", "LKA", "MYS"] },
+      { "code": "FRA", "name": "Fransa", "color": "#3f5d8a", "leader": "Édouard Daladier", "government": "Üçüncü Cumhuriyet", "stability": 58, "economy": 62, "military": 70, "territories": ["FRA", "DZA", "TUN", "MAR", "SYR", "LBN", "MDG", "VNM", "KHM", "LAO", "MLI", "NER", "TCD"] },
+      { "code": "RUS", "name": "Sovyetler Birliği", "color": "#8f4b2e", "leader": "Josef Stalin", "government": "Komünist tek parti", "stability": 64, "economy": 60, "military": 78, "territories": ["RUS", "BLR", "UKR", "KAZ", "UZB", "TKM", "KGZ", "TJK", "GEO", "ARM", "AZE", "MNG"] },
+      { "code": "ITA", "name": "İtalya", "color": "#4f7a5c", "leader": "Benito Mussolini", "government": "Faşist diktatörlük", "stability": 60, "economy": 52, "military": 62, "territories": ["ITA", "LBY", "ETH", "ERI", "SOM", "ALB"] },
+      { "code": "USA", "name": "Amerika Birleşik Devletleri", "color": "#2f6b5c", "leader": "Franklin D. Roosevelt", "government": "Federal cumhuriyet", "stability": 74, "economy": 92, "military": 48, "territories": ["USA", "PHL"] },
+      { "code": "JPN", "name": "Japonya", "color": "#a8802f", "leader": "İmparator Hirohito", "government": "Askeri imparatorluk", "stability": 66, "economy": 58, "military": 76, "territories": ["JPN", "KOR", "TWN"] },
+      { "code": "CHN", "name": "Çin Cumhuriyeti", "color": "#7a5c3e", "leader": "Çan Kay-şek", "government": "Milliyetçi hükümet", "stability": 34, "economy": 30, "military": 44, "territories": ["CHN"] },
+      { "code": "POL", "name": "Polonya", "color": "#9a7fa8", "leader": "Ignacy Mościcki", "government": "Otoriter cumhuriyet", "stability": 52, "economy": 40, "military": 46, "territories": ["POL"] },
+      { "code": "TUR", "name": "Türkiye", "color": "#b04a3a", "leader": "İsmet İnönü", "government": "Tek parti cumhuriyeti", "stability": 66, "economy": 38, "military": 44, "territories": ["TUR"] },
+      { "code": "ESP", "name": "İspanya", "color": "#6b6141", "leader": "Francisco Franco", "government": "Askeri diktatörlük", "stability": 40, "economy": 28, "military": 42, "territories": ["ESP", "ESH"] }
+    ],
+    "relations": [
+      { "a": "DEU", "b": "POL", "value": -75 },
+      { "a": "DEU", "b": "GBR", "value": -60 },
+      { "a": "DEU", "b": "FRA", "value": -65 },
+      { "a": "DEU", "b": "ITA", "value": 80 },
+      { "a": "DEU", "b": "RUS", "value": -30 },
+      { "a": "GBR", "b": "FRA", "value": 85 },
+      { "a": "GBR", "b": "USA", "value": 60 },
+      { "a": "JPN", "b": "CHN", "value": -90 },
+      { "a": "JPN", "b": "USA", "value": -45 },
+      { "a": "TUR", "b": "GBR", "value": 45 },
+      { "a": "TUR", "b": "RUS", "value": 20 },
+      { "a": "RUS", "b": "JPN", "value": -50 }
+    ]
+  },
+  {
+    "id": "1914-temmuz",
+    "title": "1914 — Temmuz krizi",
+    "year": 1914,
+    "summary": "Saraybosna'da iki kurşun sıkıldı. Notalar başkentler arasında gidip geliyor, seferberlik takvimleri işlemeye başladı.",
+    "nations": [
+      { "code": "DEU", "name": "Alman İmparatorluğu", "color": "#5c6b73", "leader": "II. Wilhelm", "government": "Anayasal monarşi", "stability": 74, "economy": 80, "military": 86, "territories": ["DEU", "POL", "NAM", "TZA", "CMR", "TGO"] },
+      { "code": "AUT", "name": "Avusturya-Macaristan", "color": "#9a7fa8", "leader": "I. Franz Joseph", "government": "Çifte monarşi", "stability": 48, "economy": 58, "military": 64, "territories": ["AUT", "HUN", "CZE", "SVK", "SVN", "HRV", "BIH"] },
+      { "code": "RUS", "name": "Rus İmparatorluğu", "color": "#8f4b2e", "leader": "II. Nikolay", "government": "Mutlak monarşi", "stability": 44, "economy": 50, "military": 72, "territories": ["RUS", "BLR", "UKR", "LTU", "LVA", "EST", "FIN", "KAZ", "UZB", "TKM", "KGZ", "TJK", "GEO", "ARM", "AZE", "MDA"] },
+      { "code": "FRA", "name": "Fransa", "color": "#3f5d8a", "leader": "Raymond Poincaré", "government": "Üçüncü Cumhuriyet", "stability": 62, "economy": 70, "military": 74, "territories": ["FRA", "DZA", "TUN", "MAR", "MDG", "VNM", "KHM", "LAO", "MLI", "NER", "TCD", "COG"] },
+      { "code": "GBR", "name": "Britanya İmparatorluğu", "color": "#8a3d3d", "leader": "H. H. Asquith", "government": "Anayasal monarşi", "stability": 72, "economy": 88, "military": 78, "territories": ["GBR", "IRL", "IND", "PAK", "BGD", "MMR", "EGY", "SDN", "ZAF", "AUS", "NZL", "CAN", "NGA", "KEN", "LKA", "MYS"] },
+      { "code": "TUR", "name": "Osmanlı Devleti", "color": "#b04a3a", "leader": "V. Mehmed", "government": "Meşruti monarşi", "stability": 38, "economy": 34, "military": 48, "territories": ["TUR", "SYR", "LBN", "ISR", "JOR", "IRQ", "SAU", "YEM"] },
+      { "code": "ITA", "name": "İtalya Krallığı", "color": "#4f7a5c", "leader": "III. Vittorio Emanuele", "government": "Anayasal monarşi", "stability": 56, "economy": 48, "military": 52, "territories": ["ITA", "LBY", "ERI", "SOM"] },
+      { "code": "USA", "name": "Amerika Birleşik Devletleri", "color": "#2f6b5c", "leader": "Woodrow Wilson", "government": "Federal cumhuriyet", "stability": 76, "economy": 84, "military": 40, "territories": ["USA", "PHL", "CUB"] },
+      { "code": "JPN", "name": "Japon İmparatorluğu", "color": "#a8802f", "leader": "İmparator Taişo", "government": "İmparatorluk", "stability": 68, "economy": 52, "military": 60, "territories": ["JPN", "KOR", "TWN"] },
+      { "code": "SRB", "name": "Sırbistan", "color": "#6b6141", "leader": "I. Petar", "government": "Krallık", "stability": 46, "economy": 24, "military": 38, "territories": ["SRB", "MNE", "MKD"] },
+      { "code": "BGR", "name": "Bulgaristan", "color": "#7a5c3e", "leader": "I. Ferdinand", "government": "Krallık", "stability": 48, "economy": 28, "military": 40, "territories": ["BGR"] },
+      { "code": "GRC", "name": "Yunanistan", "color": "#4a6f8a", "leader": "Eleftherios Venizelos", "government": "Krallık", "stability": 50, "economy": 26, "military": 36, "territories": ["GRC", "ALB"] }
+    ],
+    "relations": [
+      { "a": "AUT", "b": "SRB", "value": -90 },
+      { "a": "DEU", "b": "AUT", "value": 90 },
+      { "a": "RUS", "b": "SRB", "value": 75 },
+      { "a": "RUS", "b": "AUT", "value": -70 },
+      { "a": "FRA", "b": "RUS", "value": 80 },
+      { "a": "FRA", "b": "DEU", "value": -80 },
+      { "a": "GBR", "b": "FRA", "value": 65 },
+      { "a": "GBR", "b": "DEU", "value": -45 },
+      { "a": "TUR", "b": "DEU", "value": 50 },
+      { "a": "TUR", "b": "RUS", "value": -70 },
+      { "a": "TUR", "b": "GRC", "value": -60 },
+      { "a": "BGR", "b": "SRB", "value": -65 }
+    ]
+  },
+  {
+    "id": "1453-kilit",
+    "title": "1453 — İki kıtanın kilidi",
+    "year": 1453,
+    "summary": "Surların önünde toplar döküldü. Bir şehir düşerse çağ kapanır; düşmezse başka bir düzen kurulur.",
+    "nations": [
+      { "code": "TUR", "name": "Osmanlı Devleti", "color": "#b04a3a", "leader": "II. Mehmed", "government": "Sultanlık", "stability": 64, "economy": 58, "military": 80, "territories": ["TUR", "BGR", "MKD", "ALB", "SRB"] },
+      { "code": "GRC", "name": "Doğu Roma", "color": "#7a4a8a", "leader": "XI. Konstantinos", "government": "İmparatorluk", "stability": 22, "economy": 18, "military": 20, "territories": ["GRC"] },
+      { "code": "ITA", "name": "Venedik Cumhuriyeti", "color": "#4f7a5c", "leader": "Doç Francesco Foscari", "government": "Aristokratik cumhuriyet", "stability": 66, "economy": 82, "military": 52, "territories": ["ITA", "HRV", "SVN", "CYP"] },
+      { "code": "HUN", "name": "Macaristan Krallığı", "color": "#5c6b73", "leader": "János Hunyadi", "government": "Krallık", "stability": 54, "economy": 44, "military": 60, "territories": ["HUN", "SVK", "ROU", "BIH", "SVN"] },
+      { "code": "EGY", "name": "Memlük Sultanlığı", "color": "#a8802f", "leader": "İnal", "government": "Sultanlık", "stability": 50, "economy": 60, "military": 56, "territories": ["EGY", "SYR", "LBN", "ISR", "JOR", "SAU", "SDN"] },
+      { "code": "IRN", "name": "Akkoyunlu Devleti", "color": "#8f4b2e", "leader": "Uzun Hasan", "government": "Aşiret konfederasyonu", "stability": 44, "economy": 38, "military": 54, "territories": ["IRN", "IRQ", "ARM", "AZE"] },
+      { "code": "POL", "name": "Polonya-Litvanya", "color": "#9a7fa8", "leader": "IV. Kazimierz", "government": "Krallık", "stability": 58, "economy": 46, "military": 54, "territories": ["POL", "LTU", "BLR", "UKR", "LVA"] },
+      { "code": "FRA", "name": "Fransa Krallığı", "color": "#3f5d8a", "leader": "VII. Charles", "government": "Krallık", "stability": 56, "economy": 52, "military": 58, "territories": ["FRA"] },
+      { "code": "ESP", "name": "Kastilya Krallığı", "color": "#6b6141", "leader": "II. Juan", "government": "Krallık", "stability": 48, "economy": 44, "military": 50, "territories": ["ESP", "PRT"] },
+      { "code": "RUS", "name": "Moskova Knezliği", "color": "#4a6f8a", "leader": "II. Vasili", "government": "Knezlik", "stability": 46, "economy": 30, "military": 40, "territories": ["RUS"] }
+    ],
+    "relations": [
+      { "a": "TUR", "b": "GRC", "value": -95 },
+      { "a": "TUR", "b": "HUN", "value": -70 },
+      { "a": "TUR", "b": "ITA", "value": -30 },
+      { "a": "GRC", "b": "ITA", "value": 45 },
+      { "a": "GRC", "b": "RUS", "value": 55 },
+      { "a": "EGY", "b": "TUR", "value": 15 },
+      { "a": "IRN", "b": "TUR", "value": -40 },
+      { "a": "HUN", "b": "POL", "value": 50 }
+    ]
+  },
+  {
+    "id": "2026-denge",
+    "title": "2026 — Dağılan denge",
+    "year": 2026,
+    "summary": "Bloklar sertleşti, tedarik zincirleri silaha dönüştü. Herkes bir sonraki hamleyi bekliyor.",
+    "nations": [
+      { "code": "USA", "name": "Amerika Birleşik Devletleri", "color": "#2f6b5c", "leader": "Başkan", "government": "Federal cumhuriyet", "stability": 58, "economy": 88, "military": 94, "territories": ["USA"] },
+      { "code": "CHN", "name": "Çin Halk Cumhuriyeti", "color": "#a8802f", "leader": "Genel Sekreter", "government": "Tek parti", "stability": 70, "economy": 86, "military": 82, "territories": ["CHN"] },
+      { "code": "RUS", "name": "Rusya Federasyonu", "color": "#8f4b2e", "leader": "Devlet Başkanı", "government": "Başkanlık sistemi", "stability": 52, "economy": 44, "military": 74, "territories": ["RUS", "BLR"] },
+      { "code": "TUR", "name": "Türkiye", "color": "#b04a3a", "leader": "Cumhurbaşkanı", "government": "Başkanlık sistemi", "stability": 58, "economy": 54, "military": 66, "territories": ["TUR"] },
+      { "code": "DEU", "name": "Almanya", "color": "#5c6b73", "leader": "Şansölye", "government": "Federal parlamenter", "stability": 66, "economy": 76, "military": 52, "territories": ["DEU"] },
+      { "code": "FRA", "name": "Fransa", "color": "#3f5d8a", "leader": "Cumhurbaşkanı", "government": "Yarı başkanlık", "stability": 56, "economy": 70, "military": 62, "territories": ["FRA"] },
+      { "code": "GBR", "name": "Birleşik Krallık", "color": "#8a3d3d", "leader": "Başbakan", "government": "Anayasal monarşi", "stability": 60, "economy": 72, "military": 64, "territories": ["GBR"] },
+      { "code": "IND", "name": "Hindistan", "color": "#7a5c3e", "leader": "Başbakan", "government": "Federal cumhuriyet", "stability": 62, "economy": 68, "military": 70, "territories": ["IND"] },
+      { "code": "UKR", "name": "Ukrayna", "color": "#4a6f8a", "leader": "Cumhurbaşkanı", "government": "Cumhuriyet", "stability": 40, "economy": 30, "military": 56, "territories": ["UKR"] },
+      { "code": "IRN", "name": "İran", "color": "#4f7a5c", "leader": "Dini Lider", "government": "Teokratik cumhuriyet", "stability": 44, "economy": 34, "military": 54, "territories": ["IRN"] },
+      { "code": "ISR", "name": "İsrail", "color": "#6b6141", "leader": "Başbakan", "government": "Parlamenter cumhuriyet", "stability": 48, "economy": 66, "military": 72, "territories": ["ISR"] },
+      { "code": "SAU", "name": "Suudi Arabistan", "color": "#9a7fa8", "leader": "Veliaht Prens", "government": "Mutlak monarşi", "stability": 62, "economy": 72, "military": 58, "territories": ["SAU"] },
+      { "code": "JPN", "name": "Japonya", "color": "#7a4a8a", "leader": "Başbakan", "government": "Anayasal monarşi", "stability": 68, "economy": 74, "military": 58, "territories": ["JPN"] },
+      { "code": "KOR", "name": "Güney Kore", "color": "#3f7a8a", "leader": "Cumhurbaşkanı", "government": "Cumhuriyet", "stability": 62, "economy": 74, "military": 66, "territories": ["KOR"] },
+      { "code": "PRK", "name": "Kuzey Kore", "color": "#7d3f3f", "leader": "Yüce Lider", "government": "Tek adam yönetimi", "stability": 54, "economy": 12, "military": 60, "territories": ["PRK"] },
+      { "code": "BRA", "name": "Brezilya", "color": "#5f7a3f", "leader": "Cumhurbaşkanı", "government": "Federal cumhuriyet", "stability": 54, "economy": 60, "military": 48, "territories": ["BRA"] },
+      { "code": "EGY", "name": "Mısır", "color": "#8a6f3f", "leader": "Cumhurbaşkanı", "government": "Başkanlık sistemi", "stability": 48, "economy": 38, "military": 54, "territories": ["EGY"] },
+      { "code": "PAK", "name": "Pakistan", "color": "#3f6b4f", "leader": "Başbakan", "government": "Federal cumhuriyet", "stability": 38, "economy": 30, "military": 60, "territories": ["PAK"] }
+    ],
+    "relations": [
+      { "a": "USA", "b": "CHN", "value": -55 },
+      { "a": "USA", "b": "RUS", "value": -70 },
+      { "a": "USA", "b": "GBR", "value": 85 },
+      { "a": "USA", "b": "ISR", "value": 80 },
+      { "a": "CHN", "b": "RUS", "value": 65 },
+      { "a": "CHN", "b": "IND", "value": -45 },
+      { "a": "RUS", "b": "UKR", "value": -95 },
+      { "a": "TUR", "b": "USA", "value": 20 },
+      { "a": "TUR", "b": "RUS", "value": 25 },
+      { "a": "TUR", "b": "GRC", "value": -25 },
+      { "a": "IRN", "b": "ISR", "value": -90 },
+      { "a": "IRN", "b": "SAU", "value": -40 },
+      { "a": "PRK", "b": "KOR", "value": -80 },
+      { "a": "IND", "b": "PAK", "value": -75 }
+    ]
+  }
+]
