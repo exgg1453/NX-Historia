@@ -119,7 +119,8 @@ function taegeuk() {
 
 const FLAGS = {
   tr: () => field("#E30A17") + crescent(23, 20, 9, "#FFFFFF", "#E30A17", 3) + star(35, 20, 4.4, "#FFFFFF", 5, -18),
-  "ottoman-early": () => field("#B01B1B") + crescent(30, 20, 11, "#FFFFFF", "#B01B1B", 3.8),
+  "ottoman-early": () =>
+    field("#B01B1B") + crescent(25, 20, 10.5, "#FFFFFF", "#B01B1B", 3.6) + star(39, 20, 5.2, "#E8B923", 8, -90),
   ottoman: () => field("#C8102E") + crescent(24, 20, 9.5, "#FFFFFF", "#C8102E", 3.2) + star(37, 20, 4.2, "#FFFFFF", 5, -18),
   "de-imperial": () => hbands(["#101010", "#FFFFFF", "#C8102E"]),
   de: () => hbands(["#101010", "#DD0000", "#FFCE00"]),
@@ -269,9 +270,30 @@ const FLAGS = {
     crown(31, 14.4, 6, "#E3C05B"),
 };
 
+let fileFlags = new Set();
+
+export async function loadFlagFiles(url = "data/flags.json") {
+  try {
+    const response = await fetch(url);
+    if (response.ok) {
+      fileFlags = new Set(await response.json());
+    }
+  } catch (error) {
+    fileFlags = new Set();
+  }
+  return fileFlags;
+}
+
+export function hasFlagFile(flagId) {
+  return fileFlags.has(flagId);
+}
+
 const FALLBACK = (color) => field(color || "#8a8f86") + rect(0, HEIGHT - 6, WIDTH, 6, "rgba(0,0,0,0.18)");
 
 export function flagMarkup(flagId, fallbackColor, className = "flag") {
+  if (flagId && fileFlags.has(flagId)) {
+    return `<img class="${className}" src="assets/flags/${flagId}.svg" alt="" loading="lazy" decoding="async">`;
+  }
   const builder = FLAGS[flagId];
   const clipId = nextClipId();
   const body = builder ? builder(clipId) : FALLBACK(fallbackColor);

@@ -2,7 +2,7 @@ import { PROVIDERS, requestCompletion } from "./providers.js";
 import { buildSystemPrompt, buildTurnPrompt, waitAction } from "./prompts.js";
 import { createState, applyTurn, parseModelResponse, buildOwnership } from "./engine.js";
 import { WorldMap } from "./map.js";
-import { flagMarkup } from "./flags.js";
+import { flagMarkup, loadFlagFiles } from "./flags.js";
 import { readValue, writeValue, removeValue } from "./storage.js";
 import { LANGUAGES, detectLanguage, setLanguage, getLanguage, t, text, applyStaticTranslations } from "./i18n.js";
 
@@ -592,6 +592,7 @@ async function boot() {
   setLanguage(detectLanguage(readValue(LANGUAGE_KEY, null)));
   fillProviderSelect(elements.providerSelect, settings.providerId);
   syncSetupProvider();
+  await loadFlagFiles();
   bindEvents();
   elements.languageButton.addEventListener("click", () => {
     switchLanguage(LANGUAGES.find((code) => code !== getLanguage()));

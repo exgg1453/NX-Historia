@@ -193,7 +193,9 @@ button, input, select, textarea {
   height: 16px;
   display: block;
   flex: none;
-  box-shadow: 0 1px 2px rgba(22, 35, 46, 0.28);
+  object-fit: fill;
+  background: var(--paper-deep);
+  box-shadow: 0 0 0 0.5px rgba(22, 35, 46, 0.35), 0 1px 2px rgba(22, 35, 46, 0.24);
 }
 
 .flag-lg {
