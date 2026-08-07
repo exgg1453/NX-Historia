@@ -124,6 +124,7 @@ const FLAGS = {
   ottoman: () => field("#C8102E") + crescent(24, 20, 9.5, "#FFFFFF", "#C8102E", 3.2) + star(37, 20, 4.2, "#FFFFFF", 5, -18),
   "de-imperial": () => hbands(["#101010", "#FFFFFF", "#C8102E"]),
   de: () => hbands(["#101010", "#DD0000", "#FFCE00"]),
+  "de-1935": () => field("#CF0000") + disc(30, 20, 11.4, "#FFFFFF"),
   gb: (clipId) =>
     field("#012169") +
     clipped(saltire("#FFFFFF", 9) + saltire("#C8102E", 4), clipId) +
