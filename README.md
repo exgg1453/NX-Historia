@@ -68,3 +68,7 @@ data/world.geo.json      ülke sınırları
 ```
 
 NX Team · Novatex
+
+## Bayraklar
+
+Bayraklar `assets/js/flags.js` içinde vektör olarak çizilir; dış servis veya görsel dosyası yoktur. Her senaryo devletinin `flag` alanı bu setteki bir kimliği gösterir, böylece aynı ülke kodu farklı dönemlerde farklı bayrak taşıyabilir. Bilinmeyen kimlikte devletin rengi düz alan olarak kullanılır.

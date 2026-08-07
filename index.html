@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Karla:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Crect width='60' height='60' fill='%2316232e'/%3E%3Ctext x='30' y='42' font-family='Georgia,serif' font-size='38' fill='%232f6b5c' text-anchor='middle'%3EH%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -61,6 +62,7 @@
 <main id="game" class="game" hidden>
   <header class="topbar">
     <button class="wordmark-small" id="homeButton" type="button">NX <em>Historia</em></button>
+    <div class="topbar-identity" id="topIdentity"></div>
     <div class="clock">
       <span class="clock-year" id="yearLabel">1939</span>
       <span class="clock-turn" id="turnLabel">Tur 0</span>
@@ -76,7 +78,7 @@
   <div class="stage">
     <aside class="rail rail-left" id="dossierPanel">
       <div class="dossier-head">
-        <span class="swatch" id="playerSwatch"></span>
+        <div id="playerFlag"></div>
         <div>
           <h2 id="playerName">—</h2>
           <p id="playerLeader" class="sub">—</p>
@@ -108,7 +110,7 @@
 
   <form class="console" id="commandForm">
     <div class="console-mark">EMİR</div>
-    <textarea id="commandInput" rows="1" placeholder="Ne yapıyorsun? Örnek: Polonya'ya saldırmazlık paktı teklif et ve Sovyetler'e gizli bir görüşme çağrısı gönder." spellcheck="false"></textarea>
+    <textarea id="commandInput" rows="1" placeholder="Ne yapıyorsun?" spellcheck="false"></textarea>
     <div class="console-actions">
       <button type="button" id="waitButton" class="ghost">Bekle</button>
       <button type="submit" id="sendButton" class="primary compact">Gönder</button>

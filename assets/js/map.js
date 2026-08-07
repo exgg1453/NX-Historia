@@ -63,7 +63,7 @@ export class WorldMap {
       const path = document.createElementNS(SVG_NAMESPACE, "path");
       path.setAttribute("d", definition);
       path.setAttribute("class", "land");
-      path.setAttribute("fill", NEUTRAL_FILL);
+      path.style.fill = NEUTRAL_FILL;
       path.dataset.code = feature.id;
       group.appendChild(path);
       this.paths.set(feature.id, path);
@@ -210,7 +210,7 @@ export class WorldMap {
     this.paths.forEach((path, code) => {
       const ownerCode = ownership[code];
       const owner = ownerCode ? state.nations[ownerCode] : null;
-      path.setAttribute("fill", owner ? owner.color : NEUTRAL_FILL);
+      path.style.fill = owner ? owner.color : NEUTRAL_FILL;
       path.classList.toggle("is-player", Boolean(owner) && owner.code === state.playerCode);
       if (owner) {
         path.dataset.owner = owner.name;

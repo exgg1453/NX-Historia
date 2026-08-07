@@ -16,6 +16,8 @@
 
 * { box-sizing: border-box; }
 
+[hidden] { display: none !important; }
+
 html, body {
   margin: 0;
   height: 100%;
@@ -154,15 +156,15 @@ button, input, select, textarea {
 }
 
 .nation-list {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 8px;
 }
 
 .nation-chip {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.34);
   border: 1px solid var(--paper-line);
-  padding: 8px 14px 8px 10px;
+  padding: 7px 14px 7px 7px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -184,6 +186,37 @@ button, input, select, textarea {
   display: inline-block;
   border: 1px solid rgba(22, 35, 46, 0.35);
   flex: none;
+}
+
+.flag {
+  width: 24px;
+  height: 16px;
+  display: block;
+  flex: none;
+  box-shadow: 0 1px 2px rgba(22, 35, 46, 0.28);
+}
+
+.flag-lg {
+  width: 46px;
+  height: 31px;
+}
+
+.flag-sm {
+  width: 18px;
+  height: 12px;
+}
+
+.scenario-flags {
+  display: flex;
+  gap: 4px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.scenario-flags .flag {
+  width: 20px;
+  height: 13px;
+  box-shadow: none;
 }
 
 .field {
@@ -284,8 +317,9 @@ input:focus, select:focus, textarea:focus {
 
 .topbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   padding: 10px 16px;
   border-bottom: 1px solid var(--paper-line);
   background: var(--paper);
@@ -301,6 +335,23 @@ input:focus, select:focus, textarea:focus {
 }
 
 .wordmark-small em { font-style: italic; color: var(--verdigris); }
+
+.topbar-identity {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 700;
+  font-size: 14px;
+  padding-left: 14px;
+  border-left: 1px solid var(--paper-line);
+  min-width: 0;
+}
+
+.topbar-identity span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .clock {
   margin-left: auto;
@@ -319,8 +370,7 @@ input:focus, select:focus, textarea:focus {
 .clock-turn {
   font-family: var(--mono);
   font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  letter-spacing: 0.14em;
   color: var(--ink-soft);
 }
 
@@ -384,7 +434,7 @@ input:focus, select:focus, textarea:focus {
   align-items: center;
 }
 
-.dossier-head .swatch { width: 20px; height: 20px; }
+.dossier-head .flag { width: 46px; height: 31px; }
 
 .dossier-head h2 {
   font-family: var(--display);
@@ -442,6 +492,19 @@ input:focus, select:focus, textarea:focus {
   font-size: 13px;
 }
 
+.relation-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.relation-name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .relation-value {
   font-family: var(--mono);
   font-size: 12px;
@@ -468,14 +531,13 @@ input:focus, select:focus, textarea:focus {
 .map-host svg.is-dragging { cursor: grabbing; }
 
 .land {
-  fill: var(--paper-deep);
   stroke: rgba(22, 35, 46, 0.4);
   stroke-width: 0.35;
   vector-effect: non-scaling-stroke;
   transition: fill 0.6s ease;
 }
 
-.land.is-player { stroke: var(--ink); stroke-width: 0.9; }
+.land.is-player { stroke: var(--ink); stroke-width: 1.4; }
 
 @keyframes flash {
   0%, 100% { opacity: 1; }
@@ -676,14 +738,21 @@ input:focus, select:focus, textarea:focus {
 }
 
 @media (max-width: 900px) {
-  .tab { display: inline-block; }
-  .clock { display: none; }
+  .tab { display: inline-block; flex: 1; }
+  .topbar-actions { order: 5; width: 100%; margin-left: 0; }
+  .clock { margin-left: auto; text-align: right; }
+  .clock-year { font-size: 19px; }
+  .wordmark-small { font-size: 18px; }
+  .topbar-identity { padding-left: 10px; }
+  .nation-list { grid-template-columns: 1fr; }
   .stage { grid-template-columns: 1fr; }
   .rail { display: none; border: 0; }
   .rail.is-visible { display: block; }
   .map-wrap { display: none; }
   .map-wrap.is-visible { display: block; }
-  .map-legend { max-height: 30%; }
+  .map-legend { max-height: 26%; font-size: 11px; padding: 7px 9px; gap: 4px; }
+  .map-legend .flag { width: 15px; height: 10px; }
+  .scenario-card { grid-template-columns: 52px 1fr; gap: 12px; padding: 14px; }
   .console-mark { display: none; }
   .setup { padding: 32px 18px 60px; }
 }

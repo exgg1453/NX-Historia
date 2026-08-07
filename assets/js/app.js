@@ -2,6 +2,7 @@ import { PROVIDERS, requestCompletion } from "./providers.js";
 import { buildSystemPrompt, buildTurnPrompt, WAIT_ACTION } from "./prompts.js";
 import { createState, applyTurn, parseModelResponse, buildOwnership } from "./engine.js";
 import { WorldMap } from "./map.js";
+import { flagMarkup } from "./flags.js";
 import { readValue, writeValue, removeValue } from "./storage.js";
 
 const SETTINGS_KEY = "nx-historia-settings";
@@ -24,7 +25,8 @@ const elements = {
   turnLabel: document.getElementById("turnLabel"),
   playerName: document.getElementById("playerName"),
   playerLeader: document.getElementById("playerLeader"),
-  playerSwatch: document.getElementById("playerSwatch"),
+  playerFlag: document.getElementById("playerFlag"),
+  topIdentity: document.getElementById("topIdentity"),
   gauges: document.getElementById("gauges"),
   relations: document.getElementById("relations"),
   territoryCount: document.getElementById("territoryCount"),
@@ -132,8 +134,15 @@ function renderScenarioList() {
     title.textContent = scenario.title.replace(/^\d+\s*—\s*/, "");
     const summary = document.createElement("p");
     summary.textContent = scenario.summary;
+    const strip = document.createElement("div");
+    strip.className = "scenario-flags";
+    strip.innerHTML = scenario.nations
+      .slice(0, 8)
+      .map((nation) => flagMarkup(nation.flag, nation.color))
+      .join("");
     body.appendChild(title);
     body.appendChild(summary);
+    body.appendChild(strip);
     card.appendChild(year);
     card.appendChild(body);
     card.addEventListener("click", () => {
@@ -163,11 +172,10 @@ function renderNationList() {
     if (selectedNationCode === nation.code) {
       chip.classList.add("is-active");
     }
-    const swatch = document.createElement("span");
-    swatch.className = "swatch";
-    swatch.style.background = nation.color;
-    chip.appendChild(swatch);
-    chip.appendChild(document.createTextNode(nation.name));
+    chip.innerHTML = flagMarkup(nation.flag, nation.color);
+    const label = document.createElement("span");
+    label.textContent = nation.name;
+    chip.appendChild(label);
     chip.addEventListener("click", () => {
       selectedNationCode = nation.code;
       renderNationList();
@@ -187,9 +195,10 @@ function renderDossier() {
   const player = gameState.nations[gameState.playerCode];
   elements.playerName.textContent = player.name;
   elements.playerLeader.textContent = `${player.leader} · ${player.government}`;
-  elements.playerSwatch.style.background = player.color;
+  elements.playerFlag.innerHTML = flagMarkup(player.flag, player.color, "flag flag-lg");
+  elements.topIdentity.innerHTML = `${flagMarkup(player.flag, player.color, "flag flag-sm")}<span>${player.name}</span>`;
   elements.yearLabel.textContent = gameState.year;
-  elements.turnLabel.textContent = `Tur ${gameState.turn}`;
+  elements.turnLabel.textContent = `${gameState.turn}. tur`;
 
   const gauges = [
     { label: "İstikrar", value: player.stability },
@@ -225,7 +234,11 @@ function renderDossier() {
     .forEach(([code, value]) => {
       const item = document.createElement("li");
       const name = document.createElement("span");
-      name.textContent = gameState.nations[code].name;
+      name.className = "relation-name";
+      name.innerHTML = flagMarkup(gameState.nations[code].flag, gameState.nations[code].color, "flag flag-sm");
+      const nameText = document.createElement("span");
+      nameText.textContent = gameState.nations[code].name;
+      name.appendChild(nameText);
       const amount = document.createElement("span");
       amount.className = "relation-value";
       if (value >= 30) amount.classList.add("is-friendly");
@@ -247,12 +260,9 @@ function renderLegend() {
   nations.forEach((nation) => {
     const row = document.createElement("div");
     row.className = "legend-row";
-    const swatch = document.createElement("span");
-    swatch.className = "swatch";
-    swatch.style.background = nation.color;
+    row.innerHTML = flagMarkup(nation.flag, nation.color, "flag flag-sm");
     const label = document.createElement("span");
     label.textContent = nation.name;
-    row.appendChild(swatch);
     row.appendChild(label);
     elements.mapLegend.appendChild(row);
   });
@@ -342,8 +352,8 @@ async function submitAction(actionText) {
   }
   const player = gameState.nations[gameState.playerCode];
   addDispatch({
-    source: `${player.name} · emir`,
-    title: gameState.year,
+    source: player.name,
+    title: "Emir",
     body: actionText,
     tone: "player",
     year: gameState.year,
