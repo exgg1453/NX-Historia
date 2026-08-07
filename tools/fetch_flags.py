@@ -155,11 +155,18 @@ def download(url, destination):
     return len(data)
 
 
+IMAGE_EXTENSIONS = (".svg", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif")
+
+
 def write_manifest(directory, manifest_path, texts):
-    ids = sorted(name[:-4] for name in os.listdir(directory) if name.endswith(".svg"))
+    manifest = {}
+    for name in sorted(os.listdir(directory)):
+        stem, extension = os.path.splitext(name)
+        if extension.lower() in IMAGE_EXTENSIONS:
+            manifest[stem] = name
     with open(manifest_path, "w", encoding="utf-8") as handle:
-        json.dump(ids, handle, ensure_ascii=False, indent=2)
-    print(texts["manifest"].format(path=manifest_path, count=len(ids)))
+        json.dump(manifest, handle, ensure_ascii=False, indent=2, sort_keys=True)
+    print(texts["manifest"].format(path=manifest_path, count=len(manifest)))
 
 
 def main():
@@ -171,6 +178,7 @@ def main():
     parser.add_argument("--manifest", default=os.path.join(root, "data", "flags.json"))
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--list", action="store_true")
+    parser.add_argument("--manifest-only", action="store_true")
     arguments = parser.parse_args()
 
     texts = TEXTS[arguments.lang]
@@ -181,6 +189,11 @@ def main():
         return
 
     os.makedirs(arguments.out, exist_ok=True)
+
+    if arguments.manifest_only:
+        write_manifest(arguments.out, arguments.manifest, texts)
+        return
+
     wanted = arguments.flags or sorted(SOURCES)
     done = 0
     skipped = 0
@@ -192,7 +205,12 @@ def main():
             failed += 1
             continue
         destination = os.path.join(arguments.out, flag + ".svg")
-        if os.path.exists(destination) and not arguments.force:
+        existing = [
+            name
+            for name in os.listdir(arguments.out)
+            if os.path.splitext(name)[0] == flag and os.path.splitext(name)[1].lower() in IMAGE_EXTENSIONS
+        ]
+        if existing and not arguments.force:
             print(texts["skipped"].format(flag=flag))
             skipped += 1
             continue

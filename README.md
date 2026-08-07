@@ -71,7 +71,7 @@ NX Team · Novatex
 
 ## Bayraklar
 
-Bayraklar iki katmanlıdır. Önce `data/flags.json` manifestosuna bakılır: kimlik orada varsa `assets/flags/<kimlik>.svg` dosyası gösterilir. Yoksa `assets/js/flags.js` içindeki vektör çizim kullanılır. Böylece dosya eklendikçe site kendiliğinden gerçek görseli kullanmaya geçer, dosya yoksa da hiçbir yer boş kalmaz.
+Bayraklar iki katmanlıdır. Önce `data/flags.json` manifestosuna bakılır: kimlik orada varsa karşılığındaki `assets/flags/` dosyası gösterilir. Manifesto kimlikten dosya adına eşlemedir, yani svg, png, jpg, webp, gif ve avif kabul edilir. Yoksa `assets/js/flags.js` içindeki vektör çizim kullanılır. Böylece dosya eklendikçe site kendiliğinden gerçek görseli kullanmaya geçer, dosya yoksa da hiçbir yer boş kalmaz.
 
 Her senaryo devletinin `flag` alanı bir kimliği gösterir, yani aynı ülke kodu farklı dönemlerde farklı bayrak taşıyabilir: `ottoman-early` 1453 için, `ottoman` 1914 için, `tr` günümüz için.
 
@@ -88,6 +88,14 @@ python3 tools/fetch_flags.py --lang en          # İngilizce çıktı
 ```
 
 Her kimlik için birden çok aday dosya adı denenir, ilki bulunamazsa sonraki denenir. İndirme bittiğinde `data/flags.json` yeniden yazılır; dosyaları depoya işlemek yeterlidir.
+
+Bayrağı elle de ekleyebilirsin: dosyayı `assets/flags/<kimlik>.<uzantı>` olarak koy, sonra manifestoyu tazele.
+
+```bash
+python3 tools/fetch_flags.py --manifest-only
+```
+
+Var olan dosyalar atlanır, üzerine yazmak için `--force` gerekir. Yani elle koyduğun bir bayrak indirme sırasında bozulmaz.
 
 ## Diller
 

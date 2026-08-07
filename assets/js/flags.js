@@ -270,29 +270,37 @@ const FLAGS = {
     crown(31, 14.4, 6, "#E3C05B"),
 };
 
-let fileFlags = new Set();
+let fileFlags = {};
 
 export async function loadFlagFiles(url = "data/flags.json") {
   try {
     const response = await fetch(url);
     if (response.ok) {
-      fileFlags = new Set(await response.json());
+      const payload = await response.json();
+      if (Array.isArray(payload)) {
+        fileFlags = {};
+        payload.forEach((flagId) => {
+          fileFlags[flagId] = `${flagId}.svg`;
+        });
+      } else {
+        fileFlags = payload;
+      }
     }
   } catch (error) {
-    fileFlags = new Set();
+    fileFlags = {};
   }
   return fileFlags;
 }
 
 export function hasFlagFile(flagId) {
-  return fileFlags.has(flagId);
+  return Boolean(fileFlags[flagId]);
 }
 
 const FALLBACK = (color) => field(color || "#8a8f86") + rect(0, HEIGHT - 6, WIDTH, 6, "rgba(0,0,0,0.18)");
 
 export function flagMarkup(flagId, fallbackColor, className = "flag") {
-  if (flagId && fileFlags.has(flagId)) {
-    return `<img class="${className}" src="assets/flags/${flagId}.svg" alt="" loading="lazy" decoding="async">`;
+  if (flagId && fileFlags[flagId]) {
+    return `<img class="${className}" src="assets/flags/${fileFlags[flagId]}" alt="" loading="lazy" decoding="async">`;
   }
   const builder = FLAGS[flagId];
   const clipId = nextClipId();
