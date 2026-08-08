@@ -59,7 +59,7 @@ index.html
 assets/css/style.css
 assets/js/app.js         arayüz kabuğu
 assets/js/engine.js      durum, tur uygulaması, ayrıştırma
-assets/js/map.js         SVG harita, projeksiyon, kaydırma ve yakınlaştırma
+assets/js/map.js         SVG harita: Winkel Tripel izdüşümü, küre sınırı, paralel ağı, kaydırma ve yakınlaştırma
 assets/js/providers.js   çoklu sağlayıcı istek katmanı
 assets/js/prompts.js     sistem ve tur istemleri
 assets/js/storage.js     yerel kayıt

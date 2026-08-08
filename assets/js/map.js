@@ -1,32 +1,84 @@
 import { t } from "./i18n.js";
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
-const DEFAULT_VIEW = { x: -180, y: -84, width: 360, height: 150 };
-const MIN_WIDTH = 18;
-const MAX_WIDTH = 380;
-const NEUTRAL_FILL = "#c7cec3";
+const DEGREES_TO_RADIANS = Math.PI / 180;
+const STANDARD_PARALLEL = Math.acos(2 / Math.PI);
+const PROJECTION_SCALE = 100;
+const EXCLUDED_TERRITORIES = new Set(["ATA"]);
+const MIN_WIDTH = 26;
+const NEUTRAL_FILL = "#d3cfbe";
 
-function projectRing(ring) {
+function project(longitude, latitude) {
+  const lambda = longitude * DEGREES_TO_RADIANS;
+  const phi = latitude * DEGREES_TO_RADIANS;
+  const alpha = Math.acos(Math.max(-1, Math.min(1, Math.cos(phi) * Math.cos(lambda / 2))));
+  const cardinal = alpha === 0 ? 1 : Math.sin(alpha) / alpha;
+  const x = 0.5 * (lambda * Math.cos(STANDARD_PARALLEL) + (2 * Math.cos(phi) * Math.sin(lambda / 2)) / cardinal);
+  const y = 0.5 * (phi + Math.sin(phi) / cardinal);
+  return [x * PROJECTION_SCALE, -y * PROJECTION_SCALE];
+}
+
+function sampleLine(points) {
+  return points
+    .map((point, index) => {
+      const [x, y] = project(point[0], point[1]);
+      return `${index === 0 ? "M" : "L"}${x.toFixed(2)} ${y.toFixed(2)}`;
+    })
+    .join("");
+}
+
+function buildSpherePath() {
+  const points = [];
+  for (let latitude = -90; latitude <= 90; latitude += 1) {
+    points.push([-180, latitude]);
+  }
+  for (let latitude = 90; latitude >= -90; latitude -= 1) {
+    points.push([180, latitude]);
+  }
+  return `${sampleLine(points)}Z`;
+}
+
+function buildGraticulePath() {
+  let path = "";
+  for (let longitude = -180; longitude <= 180; longitude += 30) {
+    const points = [];
+    for (let latitude = -90; latitude <= 90; latitude += 2) {
+      points.push([longitude, latitude]);
+    }
+    path += sampleLine(points);
+  }
+  for (let latitude = -60; latitude <= 60; latitude += 30) {
+    const points = [];
+    for (let longitude = -180; longitude <= 180; longitude += 2) {
+      points.push([longitude, latitude]);
+    }
+    path += sampleLine(points);
+  }
+  return path;
+}
+
+function projectRing(ring, bounds) {
   let path = "";
   ring.forEach((point, index) => {
-    const x = point[0].toFixed(2);
-    const y = (-point[1]).toFixed(2);
-    path += `${index === 0 ? "M" : "L"}${x} ${y}`;
+    const [x, y] = project(point[0], point[1]);
+    if (x < bounds.minX) bounds.minX = x;
+    if (x > bounds.maxX) bounds.maxX = x;
+    if (y < bounds.minY) bounds.minY = y;
+    if (y > bounds.maxY) bounds.maxY = y;
+    path += `${index === 0 ? "M" : "L"}${x.toFixed(2)} ${y.toFixed(2)}`;
   });
   return `${path}Z`;
 }
 
-function geometryToPath(geometry) {
+function geometryToPath(geometry, bounds) {
   if (!geometry) {
     return "";
   }
   if (geometry.type === "Polygon") {
-    return geometry.coordinates.map(projectRing).join("");
+    return geometry.coordinates.map((ring) => projectRing(ring, bounds)).join("");
   }
   if (geometry.type === "MultiPolygon") {
-    return geometry.coordinates
-      .map((polygon) => polygon.map(projectRing).join(""))
-      .join("");
+    return geometry.coordinates.map((polygon) => polygon.map((ring) => projectRing(ring, bounds)).join("")).join("");
   }
   return "";
 }
@@ -35,7 +87,8 @@ export class WorldMap {
   constructor(host, tooltipElement) {
     this.host = host;
     this.tooltipElement = tooltipElement;
-    this.view = { ...DEFAULT_VIEW };
+    this.defaultView = { x: -270, y: -160, width: 540, height: 320 };
+    this.view = { ...this.defaultView };
     this.paths = new Map();
     this.names = new Map();
     this.svg = null;
@@ -53,12 +106,25 @@ export class WorldMap {
 
   render(collection) {
     const svg = document.createElementNS(SVG_NAMESPACE, "svg");
-    svg.setAttribute("viewBox", this.viewBoxValue());
     svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
 
+    const sphere = document.createElementNS(SVG_NAMESPACE, "path");
+    sphere.setAttribute("d", buildSpherePath());
+    sphere.setAttribute("class", "sphere");
+    svg.appendChild(sphere);
+
+    const graticule = document.createElementNS(SVG_NAMESPACE, "path");
+    graticule.setAttribute("d", buildGraticulePath());
+    graticule.setAttribute("class", "graticule");
+    svg.appendChild(graticule);
+
+    const bounds = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
     const group = document.createElementNS(SVG_NAMESPACE, "g");
     collection.features.forEach((feature) => {
-      const definition = geometryToPath(feature.geometry);
+      if (EXCLUDED_TERRITORIES.has(feature.id)) {
+        return;
+      }
+      const definition = geometryToPath(feature.geometry, bounds);
       if (!definition) {
         return;
       }
@@ -73,6 +139,18 @@ export class WorldMap {
     });
 
     svg.appendChild(group);
+
+    const padding = 14;
+    this.defaultView = {
+      x: bounds.minX - padding,
+      y: bounds.minY - padding,
+      width: bounds.maxX - bounds.minX + padding * 2,
+      height: bounds.maxY - bounds.minY + padding * 2,
+    };
+    this.maxWidth = this.defaultView.width * 1.15;
+    this.view = { ...this.defaultView };
+    svg.setAttribute("viewBox", this.viewBoxValue());
+
     this.host.innerHTML = "";
     this.host.appendChild(svg);
     this.svg = svg;
@@ -165,7 +243,7 @@ export class WorldMap {
     const centerX = this.view.x + this.view.width / 2;
     const centerY = this.view.y + this.view.height / 2;
     const ratio = this.view.height / this.view.width;
-    const nextWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, this.view.width * factor));
+    const nextWidth = Math.max(MIN_WIDTH, Math.min(this.maxWidth, this.view.width * factor));
     this.view.width = nextWidth;
     this.view.height = nextWidth * ratio;
     this.view.x = centerX - this.view.width / 2;
@@ -174,7 +252,7 @@ export class WorldMap {
   }
 
   resetView() {
-    this.view = { ...DEFAULT_VIEW };
+    this.view = { ...this.defaultView };
     this.applyView();
   }
 
@@ -196,9 +274,9 @@ export class WorldMap {
     const minY = Math.min(...points.map((box) => box.y));
     const maxX = Math.max(...points.map((box) => box.x + box.width));
     const maxY = Math.max(...points.map((box) => box.y + box.height));
-    const padding = 14;
-    const width = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, maxX - minX + padding * 2));
-    const height = width * (DEFAULT_VIEW.height / DEFAULT_VIEW.width);
+    const padding = 16;
+    const width = Math.max(MIN_WIDTH, Math.min(this.maxWidth, maxX - minX + padding * 2));
+    const height = width * (this.defaultView.height / this.defaultView.width);
     this.view = {
       x: (minX + maxX) / 2 - width / 2,
       y: (minY + maxY) / 2 - height / 2,
