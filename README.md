@@ -77,7 +77,7 @@ Her senaryo devletinin `flag` alanı bir kimliği gösterir, yani aynı ülke ko
 
 ### Bayrak indirme
 
-`tools/fetch_flags.py` gerçek bayrak dosyalarını Wikimedia Commons'tan indirir ve manifestoyu yeniden yazar. Yalnızca standart kütüphaneyi kullanır.
+Bayrakların tamamı `assets/flags/` altında gerçek görsel dosyası olarak durur; tek istisna 1939 Almanya'sıdır, o sembolsüz olarak çizilir. `tools/fetch_flags.py` eksik bir bayrağı Wikimedia Commons'tan indirir ve manifestoyu yeniden yazar. Yalnızca standart kütüphaneyi kullanır.
 
 ```bash
 python3 tools/fetch_flags.py                    # eksik olan tüm bayrakları indir
