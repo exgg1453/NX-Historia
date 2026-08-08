@@ -1,4 +1,4 @@
-import { t } from "./i18n.js";
+import { t, text } from "./i18n.js";
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 const DEGREES_TO_RADIANS = Math.PI / 180;
@@ -90,21 +90,33 @@ export class WorldMap {
     this.defaultView = { x: -270, y: -160, width: 540, height: 320 };
     this.view = { ...this.defaultView };
     this.paths = new Map();
+    this.regionPaths = new Map();
     this.names = new Map();
     this.svg = null;
     this.pointerState = null;
   }
 
-  async load(dataUrl) {
+  async load(dataUrl, regionsUrl) {
     const response = await fetch(dataUrl);
     if (!response.ok) {
       throw new Error(t("errorMapData"));
     }
     const collection = await response.json();
-    this.render(collection);
+    let regions = null;
+    if (regionsUrl) {
+      try {
+        const regionResponse = await fetch(regionsUrl);
+        if (regionResponse.ok) {
+          regions = await regionResponse.json();
+        }
+      } catch (error) {
+        regions = null;
+      }
+    }
+    this.render(collection, regions);
   }
 
-  render(collection) {
+  render(collection, regions) {
     const svg = document.createElementNS(SVG_NAMESPACE, "svg");
     svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
 
@@ -139,6 +151,25 @@ export class WorldMap {
     });
 
     svg.appendChild(group);
+
+    if (regions) {
+      const regionGroup = document.createElementNS(SVG_NAMESPACE, "g");
+      regions.features.forEach((feature) => {
+        const definition = geometryToPath(feature.geometry, bounds);
+        if (!definition) {
+          return;
+        }
+        const path = document.createElementNS(SVG_NAMESPACE, "path");
+        path.setAttribute("d", definition);
+        path.setAttribute("class", "land region");
+        path.dataset.code = feature.id;
+        path.style.display = "none";
+        regionGroup.appendChild(path);
+        this.regionPaths.set(feature.id, path);
+        this.names.set(feature.id, feature.properties?.name || feature.id);
+      });
+      svg.appendChild(regionGroup);
+    }
 
     const padding = 14;
     this.defaultView = {
@@ -225,7 +256,8 @@ export class WorldMap {
       return;
     }
     const owner = target.dataset.owner;
-    const label = owner ? `${owner} · ${this.names.get(target.dataset.code)}` : this.names.get(target.dataset.code);
+    const regionName = text(this.names.get(target.dataset.code));
+    const label = owner ? `${owner} · ${regionName}` : regionName;
     const bounds = this.host.getBoundingClientRect();
     this.tooltipElement.textContent = label;
     this.tooltipElement.style.left = `${event.clientX - bounds.left}px`;
@@ -287,20 +319,34 @@ export class WorldMap {
   }
 
   paint(state, ownership, changedTerritories = []) {
+    this.regionPaths.forEach((path, code) => {
+      const ownerCode = ownership[code];
+      const owner = ownerCode ? state.nations[ownerCode] : null;
+      if (owner) {
+        path.style.display = "";
+        path.style.fill = owner.color;
+        path.classList.toggle("is-player", owner.code === state.playerCode);
+        path.dataset.owner = text(owner.name);
+      } else {
+        path.style.display = "none";
+        delete path.dataset.owner;
+      }
+      path.classList.remove("is-changed");
+    });
     this.paths.forEach((path, code) => {
       const ownerCode = ownership[code];
       const owner = ownerCode ? state.nations[ownerCode] : null;
       path.style.fill = owner ? owner.color : NEUTRAL_FILL;
       path.classList.toggle("is-player", Boolean(owner) && owner.code === state.playerCode);
       if (owner) {
-        path.dataset.owner = owner.name;
+        path.dataset.owner = text(owner.name);
       } else {
         delete path.dataset.owner;
       }
       path.classList.remove("is-changed");
     });
     changedTerritories.forEach((code) => {
-      const path = this.paths.get(code);
+      const path = this.paths.get(code) || this.regionPaths.get(code);
       if (path) {
         void path.offsetWidth;
         path.classList.add("is-changed");

@@ -99,6 +99,18 @@ python3 tools/fetch_flags.py --manifest-only
 
 Var olan dosyalar atlanır, üzerine yazmak için `--force` gerekir. Yani elle koyduğun bir bayrak indirme sırasında bozulmaz.
 
+## Motor testi
+
+Kurulum ekranındaki test düğmesi sağlayıcının model listesini çeker, her modelin yanına bedava mı paralı mı olduğunu ve paralıysa milyon jeton başına giriş/çıkış fiyatını yazar. Listeden bir model seçince alan doldurulur. Test, seçilen modelle gerçek bir istek gönderip yanıt gelip gelmediğine bakar.
+
+Oyun ancak model gerçekten yanıt verdiyse başlar. Model alanı boşsa, model yanlışsa ya da anahtar, model, sağlayıcı veya sunucu adresi test edildikten sonra değiştiyse başlat düğmesi kapalı kalır ve yeniden test istenir.
+
+## Tarihî bölgeler
+
+Harita ülke sınırlarının üstünde ikinci bir katman taşır. `data/regions.geo.json` içindeki bölgeler yalnızca bir devlete aitken görünür ve ait olduğu ülkenin üstüne çizilir; böylece güncel ülke sınırlarıyla tarihî sınırlar birlikte gösterilebilir. 1914'te Alman İmparatorluğu Doğu Prusya, Danzig, Silezya, Pomeranya, Posen ve Alsas-Loren'i tutar; Avusturya-Macaristan Galiçya, Güney Tirol, Trieste ve Erdel'i tutar; 1453'te Konstantinopolis Doğu Roma'nındır. Bölgeler senaryolarda ülke kodlarıyla aynı listede yazılır ve yapay zekâya da bildirilir, yani savaşla el değiştirebilir.
+
+Bölge verisi Natural Earth eyalet sınırlarından üretilmiştir.
+
 ## Diller
 
 Site Türkçe ve İngilizce çalışır. Dil sırasıyla `?lang=` parametresinden, daha önce yapılan seçimden ve tarayıcı dilinden belirlenir; sağ üstteki düğmeyle her an değiştirilebilir.

@@ -555,6 +555,10 @@ input:focus, select:focus, textarea:focus {
 
 .land.is-player { stroke: var(--ink); stroke-width: 1.6; }
 
+.land.region { stroke-width: 0.4; }
+
+.land.region.is-player { stroke-width: 0.9; }
+
 @keyframes flash {
   0%, 100% { opacity: 1; }
   20%, 60% { opacity: 0.25; }
@@ -801,3 +805,94 @@ input:focus, select:focus, textarea:focus {
   font-size: 11px;
   letter-spacing: 0.08em;
 }
+
+.ghost.wide {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.test-result {
+  font-family: var(--mono);
+  font-size: 12px;
+  margin: 10px 0 0;
+  padding: 9px 11px;
+  border-left: 3px solid var(--paper-line);
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.test-result.is-ok { border-left-color: var(--verdigris); }
+.test-result.is-error { border-left-color: var(--oxide); color: var(--oxide); }
+.test-result.is-busy { border-left-color: var(--brass); }
+
+.model-panel {
+  margin-top: 16px;
+  border: 1px solid var(--paper-line);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.model-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--paper-line);
+}
+
+.model-panel-head h3 {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0;
+  flex: none;
+}
+
+.model-panel-head input {
+  padding: 7px 9px;
+  font-size: 13px;
+}
+
+.model-list {
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.model-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(169, 179, 167, 0.5);
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.model-row:hover { background: rgba(47, 107, 92, 0.09); }
+
+.model-row.is-active { background: var(--ink); color: var(--paper); }
+
+.model-id {
+  font-family: var(--mono);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.model-price {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.model-tag { font-weight: 600; }
+.model-tag.is-free { color: var(--verdigris); }
+.model-tag.is-paid { color: var(--brass); }
+.model-row.is-active .model-tag { color: var(--paper); }

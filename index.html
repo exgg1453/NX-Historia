@@ -53,6 +53,15 @@
         <input id="baseUrlInput" type="text" spellcheck="false" autocomplete="off" data-i18n-placeholder="baseUrlPlaceholder">
       </label>
       <p id="providerHint" class="hint"></p>
+      <button type="button" id="testButton" class="ghost wide" data-i18n="testButton"></button>
+      <p id="testResult" class="test-result" hidden></p>
+      <div id="modelPanel" class="model-panel" hidden>
+        <div class="model-panel-head">
+          <h3 data-i18n="modelsTitle"></h3>
+          <input type="search" id="modelSearch" data-i18n-placeholder="modelSearch" spellcheck="false">
+        </div>
+        <div id="modelList" class="model-list"></div>
+      </div>
     </section>
 
     <button id="startButton" class="primary" data-i18n="startButton" disabled></button>

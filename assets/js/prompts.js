@@ -1,6 +1,6 @@
 import { text, getLanguage } from "./i18n.js";
 
-const ENGLISH_SYSTEM = (territoryCodes) => [
+const ENGLISH_SYSTEM = (territoryCodes, regionCodes) => [
   "You are the engine of an alternate history sandbox called NX Historia.",
   "There is no fixed rulebook. You decide how the world reacts.",
   "The player rules a state and writes orders in their own words.",
@@ -22,10 +22,10 @@ const ENGLISH_SYSTEM = (territoryCodes) => [
   "Your answer will be valid JSON only. No code fences, no commentary, no extra text. Schema:",
 ].join("\n");
 
-export function buildSystemPrompt(territoryCodes) {
+export function buildSystemPrompt(territoryCodes, regionCodes = []) {
   if (getLanguage() === "en") {
     return [
-      ENGLISH_SYSTEM(territoryCodes),
+      ENGLISH_SYSTEM(territoryCodes, regionCodes),
       JSON.stringify(
         {
           narrative: "2-4 sentences describing the outcome of the order",
@@ -81,6 +81,10 @@ export function buildSystemPrompt(territoryCodes) {
     "",
     "Toprak kodları yalnızca şu ISO 3166-1 alpha-3 listesinden seçilir:",
     territoryCodes.join(" "),
+    "",
+    "Ayrıca şu tarihî bölge kodları kullanılabilir. Bir bölge ait olduğu ülkenin üstünde durur,",
+    "yani ülkenin tamamı el değiştirmeden bölge el değiştirebilir:",
+    regionCodes.join(" "),
     "",
     "Yanıtın yalnızca geçerli JSON olacak. Kod bloğu, açıklama veya ek metin yok. Şema:",
     JSON.stringify(

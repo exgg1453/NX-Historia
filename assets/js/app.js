@@ -1,4 +1,4 @@
-import { PROVIDERS, requestCompletion } from "./providers.js";
+import { PROVIDERS, requestCompletion, listModels, verifyModel } from "./providers.js";
 import { buildSystemPrompt, buildTurnPrompt, waitAction } from "./prompts.js";
 import { createState, applyTurn, parseModelResponse, buildOwnership } from "./engine.js";
 import { WorldMap } from "./map.js";
@@ -14,6 +14,11 @@ const elements = {
   setup: document.getElementById("setup"),
   languageButton: document.getElementById("languageButton"),
   langSwitch: document.getElementById("langSwitch"),
+  testButton: document.getElementById("testButton"),
+  testResult: document.getElementById("testResult"),
+  modelPanel: document.getElementById("modelPanel"),
+  modelSearch: document.getElementById("modelSearch"),
+  modelList: document.getElementById("modelList"),
   game: document.getElementById("game"),
   scenarioList: document.getElementById("scenarioList"),
   nationList: document.getElementById("nationList"),
@@ -69,8 +74,100 @@ let selectedScenario = null;
 let selectedNationCode = null;
 let gameState = null;
 let territoryCodes = [];
+let regionCodes = [];
 let mapReady = false;
 let busy = false;
+let availableModels = [];
+let verifiedSignature = "";
+
+function settingsSignature(current) {
+  return [current.providerId, current.model, current.apiKey, current.baseUrl].join("|");
+}
+
+function showTestResult(message, state) {
+  elements.testResult.hidden = false;
+  elements.testResult.className = `test-result is-${state}`;
+  elements.testResult.textContent = message;
+}
+
+function renderModelList(filter = "") {
+  const needle = filter.trim().toLowerCase();
+  const current = elements.modelInput.value.trim();
+  const rows = availableModels.filter(
+    (model) => !needle || model.id.toLowerCase().includes(needle) || model.name.toLowerCase().includes(needle)
+  );
+  elements.modelList.innerHTML = "";
+  if (rows.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "hint";
+    empty.style.padding = "12px";
+    empty.textContent = t("modelsEmpty");
+    elements.modelList.appendChild(empty);
+    return;
+  }
+  rows.slice(0, 300).forEach((model) => {
+    const row = document.createElement("button");
+    row.type = "button";
+    row.className = `model-row${model.id === current ? " is-active" : ""}`;
+    const identifier = document.createElement("span");
+    identifier.className = "model-id";
+    identifier.textContent = model.id;
+    const price = document.createElement("span");
+    price.className = "model-price";
+    if (!model.known) {
+      price.innerHTML = `<span class="model-tag">${t("modelsUnknown")}</span>`;
+    } else if (model.free) {
+      price.innerHTML = `<span class="model-tag is-free">${t("modelsFree")}</span>`;
+    } else {
+      const input = model.input === null ? "?" : model.input.toFixed(2);
+      const output = model.output === null ? "?" : model.output.toFixed(2);
+      price.innerHTML = `<span class="model-tag is-paid">${t("modelsPaid")}</span> $${input} / $${output}`;
+    }
+    row.appendChild(identifier);
+    row.appendChild(price);
+    row.addEventListener("click", () => {
+      elements.modelInput.value = model.id;
+      verifiedSignature = "";
+      renderModelList(elements.modelSearch.value);
+      refreshStartButton();
+    });
+    elements.modelList.appendChild(row);
+  });
+}
+
+async function runTest() {
+  const current = readSetupSettings();
+  elements.testButton.disabled = true;
+  showTestResult(t("testing"), "busy");
+  try {
+    availableModels = await listModels(current);
+    renderModelList(elements.modelSearch.value);
+    elements.modelPanel.hidden = availableModels.length === 0;
+  } catch (error) {
+    availableModels = [];
+    elements.modelPanel.hidden = true;
+    showTestResult(t("testFailed", { error: error.message }), "error");
+    elements.testButton.disabled = false;
+    refreshStartButton();
+    return;
+  }
+  if (!current.model) {
+    showTestResult(t("testKeyOk"), "ok");
+    elements.testButton.disabled = false;
+    refreshStartButton();
+    return;
+  }
+  try {
+    await verifyModel(current);
+    verifiedSignature = settingsSignature(current);
+    showTestResult(t("testOk"), "ok");
+  } catch (error) {
+    verifiedSignature = "";
+    showTestResult(t("testFailed", { error: error.message }), "error");
+  }
+  elements.testButton.disabled = false;
+  refreshStartButton();
+}
 
 let settings = readValue(SETTINGS_KEY, {
   providerId: "openrouter",
@@ -106,7 +203,7 @@ function readSetupSettings() {
   const provider = PROVIDERS[providerId];
   return {
     providerId,
-    model: elements.modelInput.value.trim() || provider.defaultModel,
+    model: elements.modelInput.value.trim(),
     apiKey: elements.apiKeyInput.value.trim(),
     baseUrl: elements.baseUrlInput.value.trim(),
   };
@@ -117,7 +214,8 @@ function refreshStartButton() {
   const provider = PROVIDERS[current.providerId];
   const keyReady = provider.id === "custom" ? true : current.apiKey.length > 0;
   const baseReady = provider.requiresBaseUrl ? current.baseUrl.length > 0 : true;
-  elements.startButton.disabled = !(selectedScenario && selectedNationCode && keyReady && baseReady);
+  const modelReady = current.model.length > 0 && verifiedSignature === settingsSignature(current);
+  elements.startButton.disabled = !(selectedScenario && selectedNationCode && keyReady && baseReady && modelReady);
 }
 
 function renderScenarioList() {
@@ -313,8 +411,9 @@ async function ensureMap() {
   if (mapReady) {
     return;
   }
-  await worldMap.load("data/world.geo.json");
+  await worldMap.load("data/world.geo.json", "data/regions.geo.json");
   territoryCodes = Array.from(worldMap.paths.keys());
+  regionCodes = Array.from(worldMap.regionPaths.keys());
   mapReady = true;
 }
 
@@ -369,7 +468,7 @@ async function submitAction(actionText) {
       apiKey: settings.apiKey,
       model: settings.model,
       baseUrl: settings.baseUrl,
-      systemPrompt: buildSystemPrompt(territoryCodes),
+      systemPrompt: buildSystemPrompt(territoryCodes, regionCodes),
       userPrompt: buildTurnPrompt(gameState, actionText),
     });
     const result = parseModelResponse(raw);
@@ -438,20 +537,39 @@ function openSettings() {
 }
 
 function bindEvents() {
+  elements.testButton.addEventListener("click", runTest);
+  elements.modelSearch.addEventListener("input", () => renderModelList(elements.modelSearch.value));
+
   elements.providerSelect.addEventListener("change", () => {
     const provider = PROVIDERS[elements.providerSelect.value];
     elements.modelInput.value = provider.defaultModel;
+    availableModels = [];
+    verifiedSignature = "";
+    elements.modelPanel.hidden = true;
+    elements.testResult.hidden = true;
     elements.baseUrlField.hidden = !provider.requiresBaseUrl;
     elements.providerHint.textContent = t(provider.hintKey);
     refreshStartButton();
   });
 
   [elements.modelInput, elements.apiKeyInput, elements.baseUrlInput].forEach((input) => {
-    input.addEventListener("input", refreshStartButton);
+    input.addEventListener("input", () => {
+      verifiedSignature = "";
+      refreshStartButton();
+    });
   });
 
   elements.startButton.addEventListener("click", async () => {
-    settings = readSetupSettings();
+    const current = readSetupSettings();
+    if (!current.model) {
+      showTestResult(t("modelRequired"), "error");
+      return;
+    }
+    if (verifiedSignature !== settingsSignature(current)) {
+      showTestResult(t("modelUnverified"), "error");
+      return;
+    }
+    settings = current;
     writeValue(SETTINGS_KEY, settings);
     const state = createState(selectedScenario, selectedNationCode);
     await startGame(state, true);

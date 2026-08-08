@@ -147,6 +147,98 @@ async function requestGemini({ apiKey, model, systemPrompt, userPrompt }) {
   return text;
 }
 
+export async function listModels({ providerId, apiKey, baseUrl }) {
+  if (providerId === "openrouter") {
+    const response = await fetch("https://openrouter.ai/api/v1/models");
+    if (!response.ok) {
+      throw new Error(await readErrorMessage(response));
+    }
+    const payload = await response.json();
+    return (payload.data || []).map((entry) => {
+      const prompt = Number(entry?.pricing?.prompt);
+      const completion = Number(entry?.pricing?.completion);
+      const known = Number.isFinite(prompt) && Number.isFinite(completion);
+      return {
+        id: entry.id,
+        name: entry.name || entry.id,
+        free: known && prompt === 0 && completion === 0,
+        known,
+        input: Number.isFinite(prompt) ? prompt * 1000000 : null,
+        output: Number.isFinite(completion) ? completion * 1000000 : null,
+      };
+    });
+  }
+  if (providerId === "anthropic") {
+    const response = await fetch("https://api.anthropic.com/v1/models?limit=100", {
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
+    });
+    if (!response.ok) {
+      throw new Error(await readErrorMessage(response));
+    }
+    const payload = await response.json();
+    return (payload.data || []).map((entry) => ({
+      id: entry.id,
+      name: entry.display_name || entry.id,
+      free: false,
+      known: true,
+      input: null,
+      output: null,
+    }));
+  }
+  if (providerId === "gemini") {
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models", {
+      headers: { "x-goog-api-key": apiKey },
+    });
+    if (!response.ok) {
+      throw new Error(await readErrorMessage(response));
+    }
+    const payload = await response.json();
+    return (payload.models || [])
+      .filter((entry) => (entry.supportedGenerationMethods || []).includes("generateContent"))
+      .map((entry) => ({
+        id: String(entry.name || "").replace("models/", ""),
+        name: entry.displayName || entry.name,
+        free: false,
+        known: false,
+        input: null,
+        output: null,
+      }));
+  }
+  const endpoint = providerId === "openai" ? "https://api.openai.com/v1/models" : `${stripTrailingSlash(baseUrl || "")}/models`;
+  const response = await fetch(endpoint, { headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : {} });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  const payload = await response.json();
+  return (payload.data || []).map((entry) => ({
+    id: entry.id,
+    name: entry.id,
+    free: false,
+    known: true,
+    input: null,
+    output: null,
+  }));
+}
+
+export async function verifyModel({ providerId, apiKey, model, baseUrl }) {
+  const reply = await requestCompletion({
+    providerId,
+    apiKey,
+    model,
+    baseUrl,
+    systemPrompt: "Reply with the single word OK and nothing else.",
+    userPrompt: "OK",
+  });
+  if (!String(reply || "").trim()) {
+    throw new Error(t("errorEmptyResponse"));
+  }
+  return true;
+}
+
 export async function requestCompletion({ providerId, apiKey, model, baseUrl, systemPrompt, userPrompt }) {
   const provider = PROVIDERS[providerId];
   if (!provider) {
