@@ -40,6 +40,17 @@ export const PROVIDERS = {
 };
 
 const MAX_OUTPUT_TOKENS = 4000;
+const REQUEST_TIMEOUT = 45000;
+
+async function fetchWithTimeout(url, options = {}, timeout = REQUEST_TIMEOUT) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 function stripTrailingSlash(value) {
   return value.replace(/\/+$/, "");
@@ -57,7 +68,7 @@ async function readErrorMessage(response) {
 }
 
 async function requestChatCompletions({ endpoint, headers, model, systemPrompt, userPrompt }) {
-  const response = await fetch(endpoint, {
+  const response = await fetchWithTimeout(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...headers },
     body: JSON.stringify({
@@ -86,7 +97,7 @@ async function requestChatCompletions({ endpoint, headers, model, systemPrompt, 
 }
 
 async function requestAnthropic({ apiKey, model, systemPrompt, userPrompt }) {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const response = await fetchWithTimeout("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -118,7 +129,7 @@ async function requestAnthropic({ apiKey, model, systemPrompt, userPrompt }) {
 
 async function requestGemini({ apiKey, model, systemPrompt, userPrompt }) {
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
-  const response = await fetch(endpoint, {
+  const response = await fetchWithTimeout(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -149,7 +160,7 @@ async function requestGemini({ apiKey, model, systemPrompt, userPrompt }) {
 
 export async function listModels({ providerId, apiKey, baseUrl }) {
   if (providerId === "openrouter") {
-    const response = await fetch("https://openrouter.ai/api/v1/models");
+    const response = await fetchWithTimeout("https://openrouter.ai/api/v1/models");
     if (!response.ok) {
       throw new Error(await readErrorMessage(response));
     }
@@ -169,7 +180,7 @@ export async function listModels({ providerId, apiKey, baseUrl }) {
     });
   }
   if (providerId === "anthropic") {
-    const response = await fetch("https://api.anthropic.com/v1/models?limit=100", {
+    const response = await fetchWithTimeout("https://api.anthropic.com/v1/models?limit=100", {
       headers: {
         "x-api-key": apiKey,
         "anthropic-version": "2023-06-01",
@@ -190,7 +201,7 @@ export async function listModels({ providerId, apiKey, baseUrl }) {
     }));
   }
   if (providerId === "gemini") {
-    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models", {
+    const response = await fetchWithTimeout("https://generativelanguage.googleapis.com/v1beta/models", {
       headers: { "x-goog-api-key": apiKey },
     });
     if (!response.ok) {
@@ -209,7 +220,7 @@ export async function listModels({ providerId, apiKey, baseUrl }) {
       }));
   }
   const endpoint = providerId === "openai" ? "https://api.openai.com/v1/models" : `${stripTrailingSlash(baseUrl || "")}/models`;
-  const response = await fetch(endpoint, { headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : {} });
+  const response = await fetchWithTimeout(endpoint, { headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : {} });
   if (!response.ok) {
     throw new Error(await readErrorMessage(response));
   }

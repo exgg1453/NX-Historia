@@ -101,7 +101,7 @@ Var olan dosyalar atlanır, üzerine yazmak için `--force` gerekir. Yani elle k
 
 ## Motor testi
 
-Kurulum ekranındaki test düğmesi sağlayıcının model listesini çeker, her modelin yanına bedava mı paralı mı olduğunu ve paralıysa milyon jeton başına giriş/çıkış fiyatını yazar. Listeden bir model seçince alan doldurulur. Test, seçilen modelle gerçek bir istek gönderip yanıt gelip gelmediğine bakar.
+Kurulum ekranındaki test düğmesi sağlayıcının model listesini çeker, her modelin yanına bedava mı paralı mı olduğunu ve paralıysa milyon jeton başına giriş/çıkış fiyatını yazar. Liste hepsi, bedava ve paralı olarak süzülebilir; bir modele tıklayınca alan doldurulur. Test, seçilen modelle gerçek bir istek gönderip yanıt gelip gelmediğine bakar.
 
 Başlat düğmesine basıldığında model daha önce doğrulanmadıysa arka planda denenir; yanıt gelirse oyun açılır. Yanıt gelmezse hata gösterilir ve altında bir "yine de başlat" düğmesi belirir, yani hiçbir durumda kilitlenmezsin. Model alanı boş bırakılırsa oyun başlamaz; artık sessizce varsayılan modele düşmez.
 

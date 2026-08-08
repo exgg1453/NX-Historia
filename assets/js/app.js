@@ -19,6 +19,7 @@ const elements = {
   testResult: document.getElementById("testResult"),
   modelPanel: document.getElementById("modelPanel"),
   modelSearch: document.getElementById("modelSearch"),
+  modelFilters: document.getElementById("modelFilters"),
   modelList: document.getElementById("modelList"),
   game: document.getElementById("game"),
   scenarioList: document.getElementById("scenarioList"),
@@ -79,6 +80,7 @@ let regionCodes = [];
 let mapReady = false;
 let busy = false;
 let availableModels = [];
+let modelFilter = "all";
 let verifiedSignature = "";
 
 function settingsSignature(current) {
@@ -94,9 +96,18 @@ function showTestResult(message, state) {
 function renderModelList(filter = "") {
   const needle = filter.trim().toLowerCase();
   const current = elements.modelInput.value.trim();
-  const rows = availableModels.filter(
-    (model) => !needle || model.id.toLowerCase().includes(needle) || model.name.toLowerCase().includes(needle)
-  );
+  const rows = availableModels.filter((model) => {
+    if (modelFilter === "free" && !model.free) {
+      return false;
+    }
+    if (modelFilter === "paid" && (model.free || !model.known)) {
+      return false;
+    }
+    return !needle || model.id.toLowerCase().includes(needle) || model.name.toLowerCase().includes(needle);
+  });
+  elements.modelFilters.querySelectorAll("button").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.filter === modelFilter);
+  });
   elements.modelList.innerHTML = "";
   if (rows.length === 0) {
     const empty = document.createElement("p");
@@ -151,6 +162,8 @@ async function runTest() {
     elements.testButton.disabled = false;
     refreshStartButton();
     return;
+  } finally {
+    elements.testButton.disabled = false;
   }
   if (!current.model) {
     showTestResult(t("testKeyOk"), "ok");
@@ -540,6 +553,12 @@ function openSettings() {
 function bindEvents() {
   elements.testButton.addEventListener("click", runTest);
   elements.modelSearch.addEventListener("input", () => renderModelList(elements.modelSearch.value));
+  elements.modelFilters.querySelectorAll("button").forEach((button) => {
+    button.addEventListener("click", () => {
+      modelFilter = button.dataset.filter;
+      renderModelList(elements.modelSearch.value);
+    });
+  });
 
   elements.providerSelect.addEventListener("change", () => {
     const provider = PROVIDERS[elements.providerSelect.value];
@@ -582,15 +601,20 @@ function bindEvents() {
     }
     elements.startButton.disabled = true;
     showTestResult(t("verifying"), "busy");
+    let verified = false;
     try {
       await verifyModel(current);
-      verifiedSignature = settingsSignature(current);
-      elements.startButton.disabled = false;
-      await beginGame(current);
+      verified = true;
     } catch (error) {
       showTestResult(t("startBlocked", { error: error.message }), "error");
       elements.forceStartButton.hidden = false;
+    } finally {
       elements.startButton.disabled = false;
+      refreshStartButton();
+    }
+    if (verified) {
+      verifiedSignature = settingsSignature(current);
+      await beginGame(current);
     }
   });
 

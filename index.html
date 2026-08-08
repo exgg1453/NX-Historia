@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Karla:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Crect width='60' height='60' fill='%2316232e'/%3E%3Ctext x='30' y='42' font-family='Georgia,serif' font-size='38' fill='%232f6b5c' text-anchor='middle'%3EH%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=7">
 </head>
 <body>
 
@@ -59,6 +59,11 @@
         <div class="model-panel-head">
           <h3 data-i18n="modelsTitle"></h3>
           <input type="search" id="modelSearch" data-i18n-placeholder="modelSearch" spellcheck="false">
+        </div>
+        <div class="model-filters" id="modelFilters">
+          <button type="button" data-filter="all" class="is-active" data-i18n="filterAll"></button>
+          <button type="button" data-filter="free" data-i18n="filterFree"></button>
+          <button type="button" data-filter="paid" data-i18n="filterPaid"></button>
         </div>
         <div id="modelList" class="model-list"></div>
       </div>
@@ -159,6 +164,6 @@
   </div>
 </dialog>
 
-<script type="module" src="assets/js/app.js"></script>
+<script type="module" src="assets/js/app.js?v=7"></script>
 </body>
 </html>

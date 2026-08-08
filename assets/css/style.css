@@ -896,3 +896,27 @@ input:focus, select:focus, textarea:focus {
 .model-tag.is-free { color: var(--verdigris); }
 .model-tag.is-paid { color: var(--brass); }
 .model-row.is-active .model-tag { color: var(--paper); }
+
+.model-filters {
+  display: flex;
+  gap: 6px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--paper-line);
+}
+
+.model-filters button {
+  background: transparent;
+  border: 1px solid var(--paper-line);
+  padding: 5px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.model-filters button.is-active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
