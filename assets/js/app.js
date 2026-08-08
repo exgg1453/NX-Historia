@@ -15,6 +15,7 @@ const elements = {
   languageButton: document.getElementById("languageButton"),
   langSwitch: document.getElementById("langSwitch"),
   testButton: document.getElementById("testButton"),
+  forceStartButton: document.getElementById("forceStartButton"),
   testResult: document.getElementById("testResult"),
   modelPanel: document.getElementById("modelPanel"),
   modelSearch: document.getElementById("modelSearch"),
@@ -128,6 +129,8 @@ function renderModelList(filter = "") {
     row.addEventListener("click", () => {
       elements.modelInput.value = model.id;
       verifiedSignature = "";
+      elements.forceStartButton.hidden = true;
+      elements.testResult.hidden = true;
       renderModelList(elements.modelSearch.value);
       refreshStartButton();
     });
@@ -144,8 +147,6 @@ async function runTest() {
     renderModelList(elements.modelSearch.value);
     elements.modelPanel.hidden = availableModels.length === 0;
   } catch (error) {
-    availableModels = [];
-    elements.modelPanel.hidden = true;
     showTestResult(t("testFailed", { error: error.message }), "error");
     elements.testButton.disabled = false;
     refreshStartButton();
@@ -214,7 +215,7 @@ function refreshStartButton() {
   const provider = PROVIDERS[current.providerId];
   const keyReady = provider.id === "custom" ? true : current.apiKey.length > 0;
   const baseReady = provider.requiresBaseUrl ? current.baseUrl.length > 0 : true;
-  const modelReady = current.model.length > 0 && verifiedSignature === settingsSignature(current);
+  const modelReady = current.model.length > 0;
   elements.startButton.disabled = !(selectedScenario && selectedNationCode && keyReady && baseReady && modelReady);
 }
 
@@ -555,9 +556,19 @@ function bindEvents() {
   [elements.modelInput, elements.apiKeyInput, elements.baseUrlInput].forEach((input) => {
     input.addEventListener("input", () => {
       verifiedSignature = "";
+      elements.forceStartButton.hidden = true;
       refreshStartButton();
     });
   });
+
+  async function beginGame(current) {
+    settings = current;
+    writeValue(SETTINGS_KEY, settings);
+    elements.forceStartButton.hidden = true;
+    const state = createState(selectedScenario, selectedNationCode);
+    await startGame(state, true);
+    showPanel("map");
+  }
 
   elements.startButton.addEventListener("click", async () => {
     const current = readSetupSettings();
@@ -565,15 +576,31 @@ function bindEvents() {
       showTestResult(t("modelRequired"), "error");
       return;
     }
-    if (verifiedSignature !== settingsSignature(current)) {
-      showTestResult(t("modelUnverified"), "error");
+    if (verifiedSignature === settingsSignature(current)) {
+      await beginGame(current);
       return;
     }
-    settings = current;
-    writeValue(SETTINGS_KEY, settings);
-    const state = createState(selectedScenario, selectedNationCode);
-    await startGame(state, true);
-    showPanel("map");
+    elements.startButton.disabled = true;
+    showTestResult(t("verifying"), "busy");
+    try {
+      await verifyModel(current);
+      verifiedSignature = settingsSignature(current);
+      elements.startButton.disabled = false;
+      await beginGame(current);
+    } catch (error) {
+      showTestResult(t("startBlocked", { error: error.message }), "error");
+      elements.forceStartButton.hidden = false;
+      elements.startButton.disabled = false;
+    }
+  });
+
+  elements.forceStartButton.addEventListener("click", async () => {
+    const current = readSetupSettings();
+    if (!current.model) {
+      showTestResult(t("modelRequired"), "error");
+      return;
+    }
+    await beginGame(current);
   });
 
   elements.commandForm.addEventListener("submit", (event) => {

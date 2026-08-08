@@ -103,7 +103,7 @@ Var olan dosyalar atlanır, üzerine yazmak için `--force` gerekir. Yani elle k
 
 Kurulum ekranındaki test düğmesi sağlayıcının model listesini çeker, her modelin yanına bedava mı paralı mı olduğunu ve paralıysa milyon jeton başına giriş/çıkış fiyatını yazar. Listeden bir model seçince alan doldurulur. Test, seçilen modelle gerçek bir istek gönderip yanıt gelip gelmediğine bakar.
 
-Oyun ancak model gerçekten yanıt verdiyse başlar. Model alanı boşsa, model yanlışsa ya da anahtar, model, sağlayıcı veya sunucu adresi test edildikten sonra değiştiyse başlat düğmesi kapalı kalır ve yeniden test istenir.
+Başlat düğmesine basıldığında model daha önce doğrulanmadıysa arka planda denenir; yanıt gelirse oyun açılır. Yanıt gelmezse hata gösterilir ve altında bir "yine de başlat" düğmesi belirir, yani hiçbir durumda kilitlenmezsin. Model alanı boş bırakılırsa oyun başlamaz; artık sessizce varsayılan modele düşmez.
 
 ## Tarihî bölgeler
 
